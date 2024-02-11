@@ -43,9 +43,9 @@ void BasicDrawPane::leftClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	printf("\nleft click @ x: %d, y: %d", pt.x, pt.y);
-	if ((*bob1Circle).mouseHover(pt.x, pt.y))
+	if (bob1Circle->mouseHover(pt.x, pt.y))
 		dragBob1Enabled = true;
-	if ((*bob2Circle).mouseHover(pt.x, pt.y))
+	if (bob2Circle->mouseHover(pt.x, pt.y))
 		dragBob2Enabled = true;
 }
 
@@ -98,21 +98,21 @@ void BasicDrawPane::paintEvent(wxPaintEvent &evt)
 void BasicDrawPane::render()
 {
 	// draw fixed items
-	(*originCircle).draw();
-	(*originLine).draw();
-	(*bob1Circle).draw();
-	(*bob1Line).draw();
-	(*bob2Circle).draw();
-	(*bob2Line).draw();
+	originCircle->draw();
+	originLine->draw();
+	bob1Circle->draw();
+	bob1Line->draw();
+	bob2Circle->draw();
+	bob2Line->draw();
 }
 
 void BasicDrawPane::drawObject()
 {
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->calcPositions();
-	(*bob1Circle).update(xBob1, yBob1);
-	(*bob1Line).update(x_o, y_o, xBob1, yBob1);
-	(*bob2Circle).update(xBob2, yBob2);
-	(*bob2Line).update(xBob1, yBob1, xBob2, yBob2);
+	bob1Circle->update(xBob1, yBob1);
+	bob1Line->update(x_o, y_o, xBob1, yBob1);
+	bob2Circle->update(xBob2, yBob2);
+	bob2Line->update(xBob1, yBob1, xBob2, yBob2);
 	wxClientDC dc(this);
 	dc.Clear();
 	render();

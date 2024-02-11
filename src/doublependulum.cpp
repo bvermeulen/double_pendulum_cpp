@@ -68,12 +68,14 @@ definition of ordinary differential equation for a double pendulum
 	num1 = -gravitationalConstant * (2 * massBob1 + massBob2) * sin(theta1);
 	num2 = -massBob2 * gravitationalConstant * sin(theta1 - 2 * theta2);
 	num3 = -2 * sin(theta1 - theta2) * massBob2;
+	num4 = theta2Dot * theta2Dot * lengthBob2 + theta1Dot * theta1Dot * lengthBob2 * cos(theta1 - theta2);
 	den = lengthBob1 * (2 * massBob1 + massBob2 - massBob2 * cos(2 * theta1 - 2 * theta2));
 	theta1DoubleDot = (num1 + num2 + num3 * num4) / den;
 
 	num1 = 2 * sin(theta1 - theta2);
 	num2 = (theta1Dot * theta1Dot * lengthBob1 * (massBob1 + massBob2));
 	num3 = gravitationalConstant * (massBob1 + massBob2) * cos(theta1);
+	num4 = (theta2Dot * theta2Dot * lengthBob2 * massBob2 * cos(theta1 - theta2));
 	den = lengthBob2 * (2 * massBob1 + massBob2 - massBob2 * cos(2 * theta1 - 2 * theta2));
 	theta2DoubleDot = (num1 * (num2 + num3 + num4)) / den;
 }
