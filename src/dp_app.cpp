@@ -14,7 +14,6 @@ class MyApp : public wxApp
 
 		drawPane = new BasicDrawPane((wxFrame *)frame);
 		sizer->Add(drawPane, 1, wxEXPAND);
-
 		frame->SetSizer(sizer);
 		frame->SetAutoLayout(true);
 

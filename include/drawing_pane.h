@@ -3,20 +3,25 @@
 #include <wx/wx.h>
 
 class CircleObject;
+class LineObject;
+class DoublePendulum;
 
 class BasicDrawPane : public wxPanel
 {
-public:
-	bool dragEnabled;
-	int x_o, y_o;
-	CircleObject *fixedCircle, *movingCircle;
+private:
+	bool dragBob1Enabled, dragBob2Enabled;
+	float x_o, y_o;
+	CircleObject *originCircle, *bob1Circle, *bob2Circle;
+	LineObject *originLine, *bob1Line, *bob2Line;
+	DoublePendulum *dpObject;
 
 public:
 	BasicDrawPane(wxFrame *parent);
 	BasicDrawPane();
 	void paintEvent(wxPaintEvent &evt);
+	void animateDoublePendulum();
 	void render();
-	void drawObject(int x, int y);
+	void drawObject();
 
 	// some useful events
 	void mouseMoved(wxMouseEvent &event);
