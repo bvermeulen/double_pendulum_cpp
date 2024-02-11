@@ -8,8 +8,8 @@ class BasicDrawPane : public wxPanel
 {
 public:
 	bool dragEnabled;
-	CircleObject *fixedCircle;
-	CircleObject *movingCircle;
+	int x_o, y_o;
+	CircleObject *fixedCircle, *movingCircle;
 
 public:
 	BasicDrawPane(wxFrame *parent);
@@ -32,18 +32,5 @@ public:
 	DECLARE_EVENT_TABLE()
 };
 
-class CircleObject
-{
-public:
-	int x, y, lineWidth;
-	float radius;
-	BasicDrawPane *bdpPointer;
-	const wxBrush *brushFillColorPointer;
-	CircleObject(BasicDrawPane &_bdp, int _x, int _y, float _radius, const wxBrush *_brushFillColorPointer, int _lineWidth);
-	CircleObject();
-	void draw();
-	void update(int x, int y);
-	bool mouseHover(int x, int y);
-};
 
 #endif // BASICDRAWPANE1_H

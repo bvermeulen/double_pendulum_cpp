@@ -1,6 +1,7 @@
-#include <cmath>
 #include <wx/wx.h>
+#include <gonio_funcs.h>
 #include <drawing_pane.h>
+#include <objects.h>
 
 // catch paint events
 BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
@@ -21,6 +22,8 @@ BasicDrawPane::BasicDrawPane(wxFrame *parent) : wxPanel(parent)
 	dragEnabled = false;
 	fixedCircle = new CircleObject();
 	movingCircle = new CircleObject();
+	x_o = 520;
+	y_o = 160;
 }
 
 BasicDrawPane::BasicDrawPane()
@@ -45,18 +48,23 @@ void BasicDrawPane::rightClick(wxMouseEvent &event)
 
 void BasicDrawPane::mouseMoved(wxMouseEvent &event)
 {
+
 	if (dragEnabled)
 	{
 		wxPoint pt = event.GetPosition();
 		bool isHover = (*fixedCircle).mouseHover(pt.x, pt.y);
-		printf("\nmouse moved @ x: %d, y: %d, hover: %s", pt.x, pt.y, isHover ? "true" : "false");
+		//printf("\nmouse moved @ x: %d, y: %d, hover: %s", pt.x, pt.y, isHover ? "true" : "false");
+
+		float theta = gonio_funcs::calcTheta(pt.x - x_o, pt.y - y_o, 0.0);
+		auto [x, y] = gonio_funcs::calcXY(10.0, theta);
+		printf("\ntheta: %.2f, x: %.0f, y: %.0f", theta, x, y);
 		drawObject(pt.x, pt.y);
 	}
 }
 
 void BasicDrawPane::paintEvent(wxPaintEvent &evt)
 {
-	fixedCircle = new CircleObject(*this, 300, 450, 30.0, wxGREEN_BRUSH, 2);
+	fixedCircle = new CircleObject(*this, x_o, y_o, 5.0, wxBLACK_BRUSH, 2);
 	render();
 }
 
@@ -76,38 +84,3 @@ void BasicDrawPane::drawObject(int x, int y)
 	render();
 }
 
-CircleObject::CircleObject(BasicDrawPane &_bdp, int _x, int _y, float _radius, const wxBrush *_brushFillColorPointer, int _lineWidth)
-{
-	x = _x;
-	y = _y;
-	radius = _radius;
-	lineWidth = _lineWidth;
-	brushFillColorPointer = _brushFillColorPointer;
-	bdpPointer = &_bdp;
-}
-CircleObject::CircleObject()
-{
-}
-
-void CircleObject::draw()
-{
-	wxClientDC dc(bdpPointer);
-	dc.SetBrush(*brushFillColorPointer);
-	dc.SetPen(wxPen(wxColor(150, 150, 250), lineWidth));
-	dc.DrawCircle(wxPoint(x, y), radius);
-}
-
-void CircleObject::update(int _x, int _y)
-{
-	x = _x;
-	y = _y;
-}
-
-bool CircleObject::mouseHover(int _x, int _y)
-{
-	float dist = sqrt((x - _x) * (x - _x) + (y - _y) * (y - _y));
-	if (dist < radius)
-		return true;
-	else
-		return false;
-}
