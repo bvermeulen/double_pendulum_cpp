@@ -1,23 +1,27 @@
 #ifndef BASICDRAWPANE1_H
 #define BASICDRAWPANE1_H
+#include <memory>
 #include <wx/wx.h>
 
 class CircleObject;
 class LineObject;
+class TracerObject;
 class DoublePendulum;
 
 class BasicDrawPane : public wxPanel
 {
 private:
-	bool dragBob1Enabled, dragBob2Enabled;
+	bool dragBob1Enabled, dragBob2Enabled, runEnabled;
 	float x_o, y_o;
+	int blitCount;
 	CircleObject *originCircle, *bob1Circle, *bob2Circle;
 	LineObject *originLine, *bob1Line, *bob2Line;
+	TracerObject *tracerLine;
 	DoublePendulum *dpObject;
 
 public:
 	BasicDrawPane(wxFrame *parent);
-	BasicDrawPane();
+	//BasicDrawPane();
 	void paintEvent(wxPaintEvent &evt);
 	void animateDoublePendulum();
 	void render();

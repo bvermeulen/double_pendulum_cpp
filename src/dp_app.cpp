@@ -2,6 +2,7 @@
 #include <wx/sizer.h>
 #include <drawing_pane.h>
 
+
 class MyApp : public wxApp
 {
 	wxFrame *frame;

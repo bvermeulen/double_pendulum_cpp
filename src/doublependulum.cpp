@@ -3,7 +3,6 @@
 #include <gonio_funcs.h>
 #include <doublependulum.h>
 
-
 DoublePendulum::DoublePendulum(float _x_o, float _y_o)
 {
 	x_o = _x_o;
@@ -13,23 +12,19 @@ DoublePendulum::DoublePendulum(float _x_o, float _y_o)
 	theta1 = 2.09;
 	theta1Dot = 0.0;
 	theta1DoubleDot = 0.0;
-	lengthBob1 = 200.0;
+	lengthBob1 = 5.0;
+	massBob1 = 5.0;
 	radiusBob1 = 12.0;
-	massBob1 = 10.0;
 	theta2 = -3.14;
 	theta2Dot = 0.0;
 	theta2DoubleDot = 0.0;
-	lengthBob2 = 100.0;
+	lengthBob2 = 2.50;
+	massBob2 = 2.5;
 	radiusBob2 = 8.0;
-	massBob2 = 5.0;
 	xBob1 = 0.0;
 	yBob1 = 0.0;
 	xBob2 = 0.0;
 	yBob2 = 0.0;
-}
-
-DoublePendulum::DoublePendulum()
-{
 }
 
 std::tuple<float, float, float, float, float, float> DoublePendulum::getInitial()
@@ -39,11 +34,12 @@ std::tuple<float, float, float, float, float, float> DoublePendulum::getInitial(
 
 std::tuple<float, float, float, float> DoublePendulum::calcPositions()
 {
+	float modelFactor = 50.0;
 	float x, y;
-	std::tie(x, y) = gonio_funcs::calcXY(lengthBob1, theta1);
+	std::tie(x, y) = gonio_funcs::calcXY(lengthBob1 * modelFactor, theta1);
 	xBob1 = x_o + x;
 	yBob1 = y_o + y;
-	std::tie(x, y) = gonio_funcs::calcXY(lengthBob2, theta2);
+	std::tie(x, y) = gonio_funcs::calcXY(lengthBob2 * modelFactor, theta2);
 	xBob2 = xBob1 + x;
 	yBob2 = yBob1 + y;
 	return {xBob1, yBob1, xBob2, yBob2};
@@ -90,5 +86,4 @@ create a generator that solves the ODE by calculating the integral and yielding 
 	theta2Dot += theta2DoubleDot * deltaTime * (1.0 - dampingFactor);
 	theta1 += theta1Dot * deltaTime;
 	theta2 += theta2Dot * deltaTime;
-
 }

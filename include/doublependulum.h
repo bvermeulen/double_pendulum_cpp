@@ -14,7 +14,6 @@ public:
 
 public :
 	DoublePendulum(float x_o, float y_o);
-	DoublePendulum();
 	std::tuple<float, float, float, float, float, float> getInitial();
 	std::tuple<float, float, float, float> calcPositions();
 	void updateThetaBob1(float x, float y);

@@ -10,9 +10,9 @@ private:
 	int x, y;
 	int lineWidth;
 	float radius;
-	BasicDrawPane *bdpPointer;
 	const wxBrush *brushFillColorPointer;
 	const wxColor *colorPointer;
+	BasicDrawPane *bdpPointer;
 
 public:
 	CircleObject(
@@ -35,8 +35,8 @@ class LineObject
 private:
 	int x1, y1, x2, y2;
 	int lineWidth;
-	BasicDrawPane *bdpPointer;
 	const wxColor *colorPointer;
+	BasicDrawPane *bdpPointer;
 
 public:
 	LineObject(
@@ -50,6 +50,25 @@ public:
 	LineObject();
 	void draw();
 	void update(int x1, int y1, int x2, int y2);
+
+};
+
+class TracerObject
+{
+	private:
+		wxVector<wxPoint> tracerVector;
+		int lineWidth;
+		const wxColor *colorPointer;
+		BasicDrawPane *bdpPointer;
+
+	public:
+		TracerObject(
+			BasicDrawPane &_bdp,
+			int _lineWidth,
+			const wxColor *_colorPointer);
+		TracerObject();
+		void draw();
+		void update(float x, float y);
 
 };
 
