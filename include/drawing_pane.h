@@ -1,6 +1,5 @@
-#ifndef BASICDRAWPANE1_H
-#define BASICDRAWPANE1_H
-#include <memory>
+#ifndef DRAWINGPANE_H
+#define DRAWINGPANE_H
 #include <wx/wx.h>
 
 class CircleObject;
@@ -8,7 +7,7 @@ class LineObject;
 class TracerObject;
 class DoublePendulum;
 
-class BasicDrawPane : public wxPanel
+class DrawingPane : public wxPanel
 {
 private:
 	bool dragBob1Enabled, dragBob2Enabled, runEnabled;
@@ -20,14 +19,20 @@ private:
 	DoublePendulum *dpObject;
 
 public:
-	BasicDrawPane(wxFrame *parent);
-	//BasicDrawPane();
+	enum Control
+	{
+		START,
+		STOP,
+		TOGGLETRACE,
+		CLEARTRACE,
+		SWITCHCOLOR
+	};
+	DrawingPane(wxFrame *parent);
 	void paintEvent(wxPaintEvent &evt);
 	void animateDoublePendulum();
+	void controlAction(Control control);
 	void render();
 	void drawObject();
-
-	// some useful events
 	void mouseMoved(wxMouseEvent &event);
 	// void mouseDown(wxMouseEvent &event);
 	// void mouseWheelMoved(wxMouseEvent &event);
@@ -41,5 +46,4 @@ public:
 	DECLARE_EVENT_TABLE()
 };
 
-
-#endif // BASICDRAWPANE1_H
+#endif // DRAWINGPANE_H

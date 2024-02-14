@@ -2,7 +2,7 @@
 #define OBJECTS_H
 #include <wx/wx.h>
 
-class BasicDrawPane;
+class DrawingPane;
 
 class CircleObject
 {
@@ -12,11 +12,11 @@ private:
 	float radius;
 	const wxBrush *brushFillColorPointer;
 	const wxColor *colorPointer;
-	BasicDrawPane *bdpPointer;
+	DrawingPane *bdpPointer;
 
 public:
 	CircleObject(
-		BasicDrawPane &_bdp,
+		DrawingPane &_bdp,
 		int _x,
 		int _y,
 		float _radius,
@@ -36,11 +36,11 @@ private:
 	int x1, y1, x2, y2;
 	int lineWidth;
 	const wxColor *colorPointer;
-	BasicDrawPane *bdpPointer;
+	DrawingPane *bdpPointer;
 
 public:
 	LineObject(
-		BasicDrawPane &_bdp,
+		DrawingPane &_bdp,
 		int _x1,
 		int _y1,
 		int _x2,
@@ -59,11 +59,11 @@ class TracerObject
 		wxVector<wxPoint> tracerVector;
 		int lineWidth;
 		const wxColor *colorPointer;
-		BasicDrawPane *bdpPointer;
+		DrawingPane *bdpPointer;
 
 	public:
 		TracerObject(
-			BasicDrawPane &_bdp,
+			DrawingPane &_bdp,
 			int _lineWidth,
 			const wxColor *_colorPointer);
 		TracerObject();

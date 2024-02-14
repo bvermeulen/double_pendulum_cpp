@@ -14,13 +14,13 @@ DoublePendulum::DoublePendulum(float _x_o, float _y_o)
 	theta1DoubleDot = 0.0;
 	lengthBob1 = 5.0;
 	massBob1 = 5.0;
-	radiusBob1 = 12.0;
+	radiusBob1 = 6.0;
 	theta2 = -3.14;
 	theta2Dot = 0.0;
 	theta2DoubleDot = 0.0;
 	lengthBob2 = 2.50;
 	massBob2 = 2.5;
-	radiusBob2 = 8.0;
+	radiusBob2 = 4.0;
 	xBob1 = 0.0;
 	yBob1 = 0.0;
 	xBob2 = 0.0;
@@ -34,7 +34,7 @@ std::tuple<float, float, float, float, float, float> DoublePendulum::getInitial(
 
 std::tuple<float, float, float, float> DoublePendulum::calcPositions()
 {
-	float modelFactor = 50.0;
+	float modelFactor = 25.0;
 	float x, y;
 	std::tie(x, y) = gonio_funcs::calcXY(lengthBob1 * modelFactor, theta1);
 	xBob1 = x_o + x;

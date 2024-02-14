@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <time.h>
-//#include <tuple>
 #include <wx/wx.h>
 #include <gonio_funcs.h>
 #include <doublependulum.h>
@@ -9,32 +8,32 @@
 #define CLOCKS_PER_MS (CLOCKS_PER_SEC * 0.001)
 
 // catch paint events
-BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
-EVT_PAINT(BasicDrawPane::paintEvent)
-EVT_MOTION(BasicDrawPane::mouseMoved)
-// EVT_LEFT_DOWN(BasicDrawPane::mouseDown)
-// EVT_LEFT_UP(BasicDrawPane::mouseReleased)
-EVT_LEFT_DOWN(BasicDrawPane::leftClick)
-EVT_RIGHT_DOWN(BasicDrawPane::rightClick)
-// EVT_LEAVE_WINDOW(BasicDrawPane::mouseLeftWindow)
-// EVT_KEY_DOWN(BasicDrawPane::keyPressed)
-// EVT_KEY_UP(BasicDrawPane::keyReleased)
-// EVT_MOUSEWHEEL(BasicDrawPane::mouseWheelMoved)
+BEGIN_EVENT_TABLE(DrawingPane, wxPanel)
+EVT_PAINT(DrawingPane::paintEvent)
+EVT_MOTION(DrawingPane::mouseMoved)
+// EVT_LEFT_DOWN(DrawingPane::mouseDown)
+// EVT_LEFT_UP(DrawingPane::mouseReleased)
+EVT_LEFT_DOWN(DrawingPane::leftClick)
+EVT_RIGHT_DOWN(DrawingPane::rightClick)
+// EVT_LEAVE_WINDOW(DrawingPane::mouseLeftWindow)
+// EVT_KEY_DOWN(DrawingPane::keyPressed)
+// EVT_KEY_UP(DrawingPane::keyReleased)
+// EVT_MOUSEWHEEL(DrawingPane::mouseWheelMoved)
 END_EVENT_TABLE()
 
-
-BasicDrawPane::BasicDrawPane(wxFrame *parent) : wxPanel(parent)
+DrawingPane::DrawingPane(wxFrame *parent) : wxPanel(parent)
 {
-	x_o = 520.0;
-	y_o = 360.0;
+	x_o = 250.0;
+	y_o = 200.0;
 	blitCount = 0;
 	dragBob1Enabled = false;
 	dragBob2Enabled = false;
 	runEnabled = false;
 	dpObject = new DoublePendulum(x_o, y_o);
+	//SetDoubleBuffered(true);
 }
 
-void BasicDrawPane::leftClick(wxMouseEvent &event)
+void DrawingPane::leftClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	printf("\nleft click @ x: %d, y: %d", pt.x, pt.y);
@@ -49,7 +48,7 @@ void BasicDrawPane::leftClick(wxMouseEvent &event)
 		}
 }
 
-void BasicDrawPane::rightClick(wxMouseEvent &event)
+void DrawingPane::rightClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	dragBob1Enabled = false;
@@ -58,7 +57,7 @@ void BasicDrawPane::rightClick(wxMouseEvent &event)
 	printf("\nright click @ x: %d, y: %d, runabled: %d", pt.x, pt.y, runEnabled);
 }
 
-void BasicDrawPane::mouseMoved(wxMouseEvent &event)
+void DrawingPane::mouseMoved(wxMouseEvent &event)
 {
 	if (dragBob1Enabled || dragBob2Enabled)
 	{
@@ -77,7 +76,7 @@ void BasicDrawPane::mouseMoved(wxMouseEvent &event)
 	}
 
 }
-void BasicDrawPane::animateDoublePendulum()
+void DrawingPane::animateDoublePendulum()
 {
 	float deltaTime = 0.0001;
 	bool blit = false;
@@ -108,9 +107,33 @@ void BasicDrawPane::animateDoublePendulum()
 	}
 }
 
-void BasicDrawPane::paintEvent(wxPaintEvent &evt)
+void DrawingPane::controlAction(Control control)
 {
-	originCircle = new CircleObject(*this, x_o, y_o, 8.0, wxBLACK_BRUSH, 5, wxYELLOW);
+	switch(control)
+	{
+		case START:
+			runEnabled = true;
+			animateDoublePendulum();
+			break;
+		case STOP:
+			runEnabled = false;
+			break;
+		case TOGGLETRACE:
+			printf("\nNot yet implemented ...");
+			break;
+		case CLEARTRACE:
+			printf("\nNot yet implemented ...");
+			break;
+		case SWITCHCOLOR:
+			printf("\nNot yet implemented ...");
+			break;
+	}
+}
+
+
+void DrawingPane::paintEvent(wxPaintEvent &evt)
+{
+	originCircle = new CircleObject(*this, x_o, y_o, 10.0, wxYELLOW_BRUSH, 5, wxBLACK);
 	originLine = new LineObject(*this, x_o - 50, y_o, x_o + 50, y_o, 5, wxRED);
 	auto [theta1, lengthBob1, radiusBob1, theta2, lengthBob2, radiusBob2] = dpObject->getInitial();
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->calcPositions();
@@ -123,7 +146,7 @@ void BasicDrawPane::paintEvent(wxPaintEvent &evt)
 	render();
 }
 
-void BasicDrawPane::render()
+void DrawingPane::render()
 {
 	// draw fixed items
 	tracerLine->draw();
@@ -135,7 +158,7 @@ void BasicDrawPane::render()
 	bob2Line->draw();
 }
 
-void BasicDrawPane::drawObject()
+void DrawingPane::drawObject()
 {
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->calcPositions();
 	bob1Circle->update(xBob1, yBob1);

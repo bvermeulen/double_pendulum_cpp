@@ -1,10 +1,10 @@
 #include <wx/wx.h>
+#include <drawing_pane.h>
 #include <objects.h>
 #include <gonio_funcs.h>
-#include <drawing_pane.h>
 
 CircleObject::CircleObject(
-	BasicDrawPane &_bdp,
+	DrawingPane &_bdp,
 	int _x,
 	int _y,
 	float _radius,
@@ -47,7 +47,7 @@ bool CircleObject::mouseHover(int _x, int _y)
 }
 
 LineObject::LineObject(
-	BasicDrawPane &_bdp,
+	DrawingPane &_bdp,
 	int _x1,
 	int _y1,
 	int _x2,
@@ -84,7 +84,7 @@ void LineObject::update(int _x1, int _y1, int _x2, int _y2)
 }
 
 TracerObject::TracerObject(
-	BasicDrawPane &_bdp,
+	DrawingPane &_bdp,
 	int _lineWidth,
 	const wxColor *_colorPointer)
 {
