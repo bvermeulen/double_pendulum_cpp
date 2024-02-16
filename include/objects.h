@@ -25,7 +25,7 @@ public:
 		const wxColor *_colorPointer);
 	CircleObject();
 	void draw();
-	void update(int x, int y);
+	void update(int x, int y, float radius);
 	bool mouseHover(int x, int y);
 };
 
@@ -69,6 +69,7 @@ class TracerObject
 		TracerObject();
 		void draw();
 		void update(float x, float y);
+		void clear();
 
 };
 

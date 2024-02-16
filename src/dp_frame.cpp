@@ -10,11 +10,36 @@ EVT_BUTTON(BUTTON_STOP, DoublePendulumFrame::onStop)
 EVT_BUTTON(BUTTON_CLEARTRACE, DoublePendulumFrame::onClearTrace)
 EVT_BUTTON(BUTTON_TOGGLETRACE, DoublePendulumFrame::onToggleTrace)
 EVT_BUTTON(BUTTON_SWITCHCOLOR, DoublePendulumFrame::onSwitchColor)
-
+EVT_SLIDER(MASSBOB_1, DoublePendulumFrame::onMassBob_1)
+EVT_SLIDER(MASSBOB_2, DoublePendulumFrame::onMassBob_2)
+EVT_SLIDER(LENGTHBOB_1, DoublePendulumFrame::onLengthBob_1)
+EVT_SLIDER(LENGTHBOB_2, DoublePendulumFrame::onLengthBob_2)
 END_EVENT_TABLE()
+
 
 DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("Double Pendulum"), wxPoint(0, 0), wxSize(800, 620))
 {
+	sliderFactor = 10.0;
+	sliderSize = wxSize(160, 30);
+	printf("\nslider factor is: %.2f", sliderFactor);
+	initUI();
+}
+
+DoublePendulumFrame::~DoublePendulumFrame()
+{
+}
+
+void DoublePendulumFrame::initUI()
+{
+	printf("\nslider size is: %2d, %2d", sliderSize.GetWidth(), sliderSize.GetHeight());
+	drawingPane = new DrawingPane(this);
+	auto [massBob1, lengthBob1, massBob2, lengthBob2, dampingFactor] = drawingPane->getSettings();
+	massBob1 *= sliderFactor;
+	massBob2 *= sliderFactor;
+	lengthBob1 *= sliderFactor;
+	lengthBob2 *= sliderFactor;
+	dampingFactor *= sliderFactor;
+
 	wxMenuBar *menuBarPointer = new wxMenuBar();
 	wxMenu *menuFilePointer = new wxMenu();
 	menuFilePointer->Append(wxID_EXIT, _T("Quit"));
@@ -28,13 +53,39 @@ DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("D
 	wxBoxSizer *controlBox = new wxBoxSizer(wxHORIZONTAL);
 
 	// add items in mainBox
-	drawingPane = new DrawingPane(this);
+	wxPanel *settingsPanel = new wxPanel(this);
+	settingsPanel->SetMinSize(wxSize(170, -1));
+	settingsPanel->SetMaxSize(wxSize(200, -1));
+	wxBoxSizer *settingsBox = new wxBoxSizer(wxVERTICAL);
+	wxStaticText *label_1 = new wxStaticText(settingsPanel, wxID_ANY, wxT("Mass Bob 1 (*0.1)"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+	sMassBob_1 = new wxSlider(settingsPanel, MASSBOB_1, massBob1, 0, 100, wxDefaultPosition, sliderSize, wxSL_LABELS);
+	sMassBob_1->SetPageSize(5);
+	settingsBox->Add(label_1, 0, wxLEFT | wxBOTTOM, 5);
+	settingsBox->Add(sMassBob_1, 0, wxLEFT, 5);
+	settingsBox->AddSpacer(30);
+	wxStaticText *label_2 = new wxStaticText(settingsPanel, wxID_ANY, wxT("Mass Bob 2 (*0.1)"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+	sMassBob_2 = new wxSlider(settingsPanel, MASSBOB_2, massBob2, 0, 100, wxDefaultPosition, sliderSize, wxSL_LABELS);
+	sMassBob_2->SetPageSize(5);
+	settingsBox->Add(label_2, 0, wxLEFT | wxBOTTOM, 5);
+	settingsBox->Add(sMassBob_2, 0, wxLEFT, 5);
+	settingsBox->AddSpacer(30);
+	wxStaticText *label_3 = new wxStaticText(settingsPanel, wxID_ANY, wxT("Length Bob 1 (*0.1)"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+	sLengthBob_1 = new wxSlider(settingsPanel, LENGTHBOB_1, lengthBob1, 0, 100, wxDefaultPosition, sliderSize, wxSL_LABELS);
+	sLengthBob_1->SetPageSize(5);
+	settingsBox->Add(label_3, 0, wxLEFT | wxBOTTOM, 5);
+	settingsBox->Add(sLengthBob_1, 0, wxLEFT, 5);
+	settingsBox->AddSpacer(30);
+	wxStaticText *label_4 = new wxStaticText(settingsPanel, wxID_ANY, wxT("Length Bob 2 (*0.1)"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+	sLengthBob_2 = new wxSlider(settingsPanel, LENGTHBOB_2, lengthBob2, 0, 100, wxDefaultPosition, sliderSize, wxSL_LABELS);
+	sLengthBob_2->SetPageSize(5);
+	settingsBox->Add(label_4, 0, wxLEFT | wxBOTTOM, 5);
+	settingsBox->Add(sLengthBob_2, 0, wxLEFT, 5);
+	settingsBox->AddSpacer(30);
+
+	settingsPanel->SetSizer(settingsBox);
+
 	drawingPane->SetMinSize(wxSize(600, 400));
-	// drawingPane->SetMaxSize(wxSize(1000, 800));
-	wxPanel *leftPanel = new wxPanel(this);
-	leftPanel->SetMinSize(wxSize(100, 400));
-	leftPanel->SetMaxSize(wxSize(200, 800));
-	mainBox->Add(leftPanel, true, wxEXPAND | wxTOP | wxLEFT, 10);
+	mainBox->Add(settingsPanel, true, wxTOP | wxLEFT, 10);
 	mainBox->AddSpacer(10);
 	mainBox->Add(drawingPane, true, wxEXPAND | wxTOP | wxRIGHT, 10);
 
@@ -69,9 +120,7 @@ DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("D
 	this->Centre();
 }
 
-DoublePendulumFrame::~DoublePendulumFrame()
-{
-}
+
 
 void DoublePendulumFrame::onExit(wxCommandEvent &event)
 {
@@ -110,7 +159,22 @@ void DoublePendulumFrame::onToggleTrace(wxCommandEvent &event)
 	drawingPane->controlAction(drawingPane->TOGGLETRACE);
 }
 
-//void DoublePendulumFrame::onSwitchColor(wxCommandEvent &event)
-//{
-//	drawingPane->controlAction(drawingPane->SWITCHCOLOR);
-//}
+void DoublePendulumFrame::onMassBob_1(wxCommandEvent &event)
+{
+	drawingPane->setSettings(sMassBob_1->GetValue() / sliderFactor, -1, -1, -1, -1);
+}
+
+void DoublePendulumFrame::onMassBob_2(wxCommandEvent &event)
+{
+	drawingPane->setSettings(-1, -1, sMassBob_2->GetValue() / sliderFactor, -1, -1);
+}
+
+void DoublePendulumFrame::onLengthBob_1(wxCommandEvent &event)
+{
+	drawingPane->setSettings(-1, sLengthBob_1->GetValue() / sliderFactor, -1, -1, -1);
+}
+
+void DoublePendulumFrame::onLengthBob_2(wxCommandEvent &event)
+{
+	drawingPane->setSettings(-1, -1, -1, sLengthBob_2->GetValue() / sliderFactor, - 1);
+}

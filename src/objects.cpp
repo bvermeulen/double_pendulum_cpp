@@ -32,10 +32,11 @@ void CircleObject::draw()
 	dc.DrawCircle(wxPoint(x, y), radius);
 }
 
-void CircleObject::update(int _x, int _y)
+void CircleObject::update(int _x, int _y, float _radius)
 {
 	x = _x;
 	y = _y;
+	radius = _radius;
 }
 
 bool CircleObject::mouseHover(int _x, int _y)
@@ -110,4 +111,9 @@ void TracerObject::draw()
 void TracerObject::update(float x, float y)
 {
 	tracerVector.push_back(wxPoint((int)x, (int)(y)));
+}
+
+void TracerObject::clear()
+{
+	tracerVector.clear();
 }
