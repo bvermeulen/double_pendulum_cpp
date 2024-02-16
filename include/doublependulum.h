@@ -27,6 +27,7 @@ public:
 	void updateThetaBob2(float x, float y);
 	void calcThetaDot(float deltaTime);
 	void calcThetaDoubleDot();
+	void clearThetaDotDoubleDot();
 };
 
 #endif // DOUBLEPENDULUM_H

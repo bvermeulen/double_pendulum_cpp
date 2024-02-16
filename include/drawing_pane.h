@@ -24,8 +24,11 @@ public:
 	{
 		START,
 		STOP,
-		TOGGLETRACE,
-		CLEARTRACE,
+		PAUSE,
+		RUN,
+		TRACE_ON,
+		TRACE_OFF,
+		TRACE_CLEAR,
 		SWITCHCOLOR
 	};
 	DrawingPane(wxFrame *parent);

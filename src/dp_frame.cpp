@@ -6,7 +6,7 @@
 BEGIN_EVENT_TABLE(DoublePendulumFrame, wxFrame)
 EVT_CLOSE(DoublePendulumFrame::onClose)
 EVT_BUTTON(BUTTON_START, DoublePendulumFrame::onStart)
-EVT_BUTTON(BUTTON_STOP, DoublePendulumFrame::onStop)
+EVT_BUTTON(BUTTON_PAUSE, DoublePendulumFrame::onPause)
 EVT_BUTTON(BUTTON_CLEARTRACE, DoublePendulumFrame::onClearTrace)
 EVT_BUTTON(BUTTON_TOGGLETRACE, DoublePendulumFrame::onToggleTrace)
 EVT_BUTTON(BUTTON_SWITCHCOLOR, DoublePendulumFrame::onSwitchColor)
@@ -21,7 +21,9 @@ DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("D
 {
 	sliderFactor = 10.0;
 	sliderSize = wxSize(160, 30);
-	printf("\nslider factor is: %.2f", sliderFactor);
+	startEnabled = false;
+	pauseEnabled = false;
+	traceEnabled = false;
 	initUI();
 }
 
@@ -31,7 +33,6 @@ DoublePendulumFrame::~DoublePendulumFrame()
 
 void DoublePendulumFrame::initUI()
 {
-	printf("\nslider size is: %2d, %2d", sliderSize.GetWidth(), sliderSize.GetHeight());
 	drawingPane = new DrawingPane(this);
 	auto [massBob1, lengthBob1, massBob2, lengthBob2, dampingFactor] = drawingPane->getSettings();
 	massBob1 *= sliderFactor;
@@ -99,15 +100,15 @@ void DoublePendulumFrame::initUI()
 	graphBox->Add(theta2Pane, true, wxEXPAND | wxTOP | wxRIGHT, 10);
 
 	// add items in controlBox
-	wxButton *startBtn = new wxButton(this, BUTTON_START, wxT("Start"));
-	wxButton *stopBtn = new wxButton(this, BUTTON_STOP, wxT("Stop"));
+	startBtn = new wxButton(this, BUTTON_START, wxT("Start"));
+	pauseBtn = new wxButton(this, BUTTON_PAUSE, wxT("Pause"));
+	toggleTraceBtn = new wxButton(this, BUTTON_TOGGLETRACE, wxT("Trace on"));
 	wxButton *clearTraceBtn = new wxButton(this, BUTTON_CLEARTRACE, wxT("Clear trace"));
-	wxButton *toggleTraceBtn = new wxButton(this, BUTTON_TOGGLETRACE, wxT("Trace on/ off"));
 	wxButton *switchColorBtn = new wxButton(this, BUTTON_SWITCHCOLOR, wxT("Switch color"));
 	controlBox->Add(startBtn, true, wxTOP | wxBOTTOM | wxLEFT, 10);
-	controlBox->Add(stopBtn, true, wxTOP | wxBOTTOM, 10);
-	controlBox->Add(clearTraceBtn, true, wxTOP | wxBOTTOM, 10);
+	controlBox->Add(pauseBtn, true, wxTOP | wxBOTTOM, 10);
 	controlBox->Add(toggleTraceBtn, true, wxTOP | wxBOTTOM, 10);
+	controlBox->Add(clearTraceBtn, true, wxTOP | wxBOTTOM, 10);
 	controlBox->Add(switchColorBtn, true, wxTOP | wxBOTTOM, 10);
 
 	// collate in the vertical box
@@ -119,8 +120,6 @@ void DoublePendulumFrame::initUI()
 	this->Show();
 	this->Centre();
 }
-
-
 
 void DoublePendulumFrame::onExit(wxCommandEvent &event)
 {
@@ -136,27 +135,60 @@ void DoublePendulumFrame::onClose(wxCloseEvent &event)
 
 void DoublePendulumFrame::onStart(wxCommandEvent &event)
 {
-	drawingPane->controlAction(drawingPane->START);
+	startEnabled = !startEnabled;
+	if (startEnabled)
+	{
+		startBtn->SetLabelText(wxT("STOP"));
+		pauseEnabled = false;
+		pauseBtn->SetLabelText(wxT("Pause"));
+		drawingPane->controlAction(drawingPane->START);
+		drawingPane->controlAction(drawingPane->PAUSE);
+	}
+	else
+	{
+		startBtn->SetLabelText(wxT("START"));
+		drawingPane->controlAction(drawingPane->STOP);
+	}
 }
 
-void DoublePendulumFrame::onStop(wxCommandEvent &event)
+void DoublePendulumFrame::onPause(wxCommandEvent &event)
 {
-	drawingPane->controlAction(drawingPane->STOP);
+	pauseEnabled = !pauseEnabled;
+	if (pauseEnabled)
+	{
+		pauseBtn->SetLabelText(wxT("Run"));
+		drawingPane->controlAction(drawingPane->PAUSE);
+	}
+	else
+	{
+		pauseBtn->SetLabelText(wxT("Pause"));
+		drawingPane->controlAction(drawingPane->RUN);
+	}
+}
+
+void DoublePendulumFrame::onToggleTrace(wxCommandEvent &event)
+{
+	traceEnabled = !traceEnabled;
+	if (traceEnabled)
+	{
+		toggleTraceBtn->SetLabelText(wxT("Trace off"));
+		drawingPane->controlAction(drawingPane->TRACE_ON);
+	}
+	else
+	{
+		toggleTraceBtn->SetLabelText(wxT("Trace on"));
+		drawingPane->controlAction(drawingPane->TRACE_OFF);
+	}
+}
+
+void DoublePendulumFrame::onClearTrace(wxCommandEvent &event)
+{
+	drawingPane->controlAction(drawingPane->TRACE_CLEAR);
 }
 
 void DoublePendulumFrame::onSwitchColor(wxCommandEvent &event)
 {
 	drawingPane->controlAction(drawingPane->SWITCHCOLOR);
-}
-
-void DoublePendulumFrame::onClearTrace(wxCommandEvent &event)
-{
-	drawingPane->controlAction(drawingPane->CLEARTRACE);
-}
-
-void DoublePendulumFrame::onToggleTrace(wxCommandEvent &event)
-{
-	drawingPane->controlAction(drawingPane->TOGGLETRACE);
 }
 
 void DoublePendulumFrame::onMassBob_1(wxCommandEvent &event)

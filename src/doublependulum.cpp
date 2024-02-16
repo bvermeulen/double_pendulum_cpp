@@ -109,3 +109,11 @@ create a generator that solves the ODE by calculating the integral and yielding 
 	theta1 += theta1Dot * deltaTime;
 	theta2 += theta2Dot * deltaTime;
 }
+
+void DoublePendulum::clearThetaDotDoubleDot()
+{
+	theta1Dot = 0.0;
+	theta1DoubleDot = 0.0;
+	theta2Dot = 0.0;
+	theta2DoubleDot = 0.0;
+}

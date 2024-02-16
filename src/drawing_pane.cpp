@@ -161,16 +161,31 @@ void DrawingPane::controlAction(Control control)
 	{
 	case START:
 		runEnabled = true;
+		dpObject->clearThetaDotDoubleDot();
 		animateDoublePendulum();
 		break;
 	case STOP:
 		runEnabled = false;
+		dpObject->clearThetaDotDoubleDot();
 		break;
-	case TOGGLETRACE:
-		tracerEnabled = !tracerEnabled;
+	case PAUSE:
+		runEnabled = false;
 		break;
-	case CLEARTRACE:
+	case RUN:
+		runEnabled = true;
+		animateDoublePendulum();
+		break;
+	case TRACE_ON:
+		tracerEnabled = true;
+		updateObjects();
+		break;
+	case TRACE_OFF:
+		tracerEnabled = false;
+		updateObjects();
+		break;
+	case TRACE_CLEAR:
 		tracerLine->clear();
+		updateObjects();
 		break;
 	case SWITCHCOLOR:
 		printf("\nNot yet implemented ...");
