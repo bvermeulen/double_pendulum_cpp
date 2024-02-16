@@ -142,7 +142,6 @@ void DoublePendulumFrame::onStart(wxCommandEvent &event)
 		pauseEnabled = false;
 		pauseBtn->SetLabelText(wxT("Pause"));
 		drawingPane->controlAction(drawingPane->START);
-		drawingPane->controlAction(drawingPane->PAUSE);
 	}
 	else
 	{
