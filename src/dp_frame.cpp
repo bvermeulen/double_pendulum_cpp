@@ -1,7 +1,7 @@
 #include <wx/sizer.h>
 #include <wx/wx.h>
 #include <dp_frame.h>
-#include <drawing_pane.h>
+#include <drawing_panel.h>
 
 BEGIN_EVENT_TABLE(DoublePendulumFrame, wxFrame)
 EVT_CLOSE(DoublePendulumFrame::onClose)
@@ -33,8 +33,8 @@ DoublePendulumFrame::~DoublePendulumFrame()
 
 void DoublePendulumFrame::initUI()
 {
-	drawingPane = new DrawingPane(this);
-	auto [massBob1, lengthBob1, massBob2, lengthBob2, dampingFactor] = drawingPane->getSettings();
+	drawingPanel = new DrawingPanel(this);
+	auto [massBob1, lengthBob1, massBob2, lengthBob2, dampingFactor] = drawingPanel->getSettings();
 	massBob1 *= sliderFactor;
 	massBob2 *= sliderFactor;
 	lengthBob1 *= sliderFactor;
@@ -85,10 +85,10 @@ void DoublePendulumFrame::initUI()
 
 	settingsPanel->SetSizer(settingsBox);
 
-	drawingPane->SetMinSize(wxSize(600, 400));
+	drawingPanel->SetMinSize(wxSize(600, 400));
 	mainBox->Add(settingsPanel, true, wxTOP | wxLEFT, 10);
 	mainBox->AddSpacer(10);
-	mainBox->Add(drawingPane, true, wxEXPAND | wxTOP | wxRIGHT, 10);
+	mainBox->Add(drawingPanel, true, wxEXPAND | wxTOP | wxRIGHT, 10);
 
 	// add items in graphBox
 	wxPanel *theta1Pane = new wxPanel(this);
@@ -138,15 +138,15 @@ void DoublePendulumFrame::onStart(wxCommandEvent &event)
 	startEnabled = !startEnabled;
 	if (startEnabled)
 	{
-		startBtn->SetLabelText(wxT("STOP"));
+		startBtn->SetLabelText(wxT("Stop"));
 		pauseEnabled = false;
 		pauseBtn->SetLabelText(wxT("Pause"));
-		drawingPane->controlAction(drawingPane->START);
+		drawingPanel->controlAction(drawingPanel->START);
 	}
 	else
 	{
-		startBtn->SetLabelText(wxT("START"));
-		drawingPane->controlAction(drawingPane->STOP);
+		startBtn->SetLabelText(wxT("Start"));
+		drawingPanel->controlAction(drawingPanel->STOP);
 	}
 }
 
@@ -156,12 +156,12 @@ void DoublePendulumFrame::onPause(wxCommandEvent &event)
 	if (pauseEnabled)
 	{
 		pauseBtn->SetLabelText(wxT("Run"));
-		drawingPane->controlAction(drawingPane->PAUSE);
+		drawingPanel->controlAction(drawingPanel->PAUSE);
 	}
 	else
 	{
 		pauseBtn->SetLabelText(wxT("Pause"));
-		drawingPane->controlAction(drawingPane->RUN);
+		drawingPanel->controlAction(drawingPanel->RUN);
 	}
 }
 
@@ -171,41 +171,41 @@ void DoublePendulumFrame::onToggleTrace(wxCommandEvent &event)
 	if (traceEnabled)
 	{
 		toggleTraceBtn->SetLabelText(wxT("Trace off"));
-		drawingPane->controlAction(drawingPane->TRACE_ON);
+		drawingPanel->controlAction(drawingPanel->TRACE_ON);
 	}
 	else
 	{
 		toggleTraceBtn->SetLabelText(wxT("Trace on"));
-		drawingPane->controlAction(drawingPane->TRACE_OFF);
+		drawingPanel->controlAction(drawingPanel->TRACE_OFF);
 	}
 }
 
 void DoublePendulumFrame::onClearTrace(wxCommandEvent &event)
 {
-	drawingPane->controlAction(drawingPane->TRACE_CLEAR);
+	drawingPanel->controlAction(drawingPanel->TRACE_CLEAR);
 }
 
 void DoublePendulumFrame::onSwitchColor(wxCommandEvent &event)
 {
-	drawingPane->controlAction(drawingPane->SWITCHCOLOR);
+	drawingPanel->controlAction(drawingPanel->SWITCHCOLOR);
 }
 
 void DoublePendulumFrame::onMassBob_1(wxCommandEvent &event)
 {
-	drawingPane->setSettings(sMassBob_1->GetValue() / sliderFactor, -1, -1, -1, -1);
+	drawingPanel->setSettings(sMassBob_1->GetValue() / sliderFactor, -1, -1, -1, -1);
 }
 
 void DoublePendulumFrame::onMassBob_2(wxCommandEvent &event)
 {
-	drawingPane->setSettings(-1, -1, sMassBob_2->GetValue() / sliderFactor, -1, -1);
+	drawingPanel->setSettings(-1, -1, sMassBob_2->GetValue() / sliderFactor, -1, -1);
 }
 
 void DoublePendulumFrame::onLengthBob_1(wxCommandEvent &event)
 {
-	drawingPane->setSettings(-1, sLengthBob_1->GetValue() / sliderFactor, -1, -1, -1);
+	drawingPanel->setSettings(-1, sLengthBob_1->GetValue() / sliderFactor, -1, -1, -1);
 }
 
 void DoublePendulumFrame::onLengthBob_2(wxCommandEvent &event)
 {
-	drawingPane->setSettings(-1, -1, -1, sLengthBob_2->GetValue() / sliderFactor, - 1);
+	drawingPanel->setSettings(-1, -1, -1, sLengthBob_2->GetValue() / sliderFactor, - 1);
 }

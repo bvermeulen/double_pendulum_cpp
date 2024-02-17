@@ -4,26 +4,26 @@
 #include <wx/wx.h>
 #include <gonio_funcs.h>
 #include <doublependulum.h>
-#include <drawing_pane.h>
+#include <drawing_panel.h>
 #include <objects.h>
 #define CLOCKS_PER_MS (CLOCKS_PER_SEC * 0.001)
 
 // catch paint events
-BEGIN_EVENT_TABLE(DrawingPane, wxPanel)
-EVT_PAINT(DrawingPane::paintEvent)
-EVT_MOTION(DrawingPane::mouseMoved)
-// EVT_LEFT_DOWN(DrawingPane::mouseDown)
-// EVT_LEFT_UP(DrawingPane::mouseReleased)
-EVT_LEFT_DOWN(DrawingPane::leftClick)
-EVT_RIGHT_DOWN(DrawingPane::rightClick)
-// EVT_LEAVE_WINDOW(DrawingPane::mouseLeftWindow)
-// EVT_KEY_DOWN(DrawingPane::keyPressed)
-// EVT_KEY_UP(DrawingPane::keyReleased)
-// EVT_MOUSEWHEEL(DrawingPane::mouseWheelMoved)
-EVT_SIZE(DrawingPane::onSize)
+BEGIN_EVENT_TABLE(DrawingPanel, wxPanel)
+EVT_PAINT(DrawingPanel::paintEvent)
+EVT_MOTION(DrawingPanel::mouseMoved)
+// EVT_LEFT_DOWN(DrawingPanel::mouseDown)
+// EVT_LEFT_UP(DrawingPanel::mouseReleased)
+EVT_LEFT_DOWN(DrawingPanel::leftClick)
+EVT_RIGHT_DOWN(DrawingPanel::rightClick)
+// EVT_LEAVE_WINDOW(DrawingPanel::mouseLeftWindow)
+// EVT_KEY_DOWN(DrawingPanel::keyPressed)
+// EVT_KEY_UP(DrawingPanel::keyReleased)
+// EVT_MOUSEWHEEL(DrawingPanel::mouseWheelMoved)
+EVT_SIZE(DrawingPanel::onSize)
 END_EVENT_TABLE()
 
-DrawingPane::DrawingPane(wxFrame *parent) : wxPanel(parent)
+DrawingPanel::DrawingPanel(wxFrame *parent) : wxPanel(parent)
 {
 	originLineLength = 100;
 	originSize = 10;
@@ -36,24 +36,24 @@ DrawingPane::DrawingPane(wxFrame *parent) : wxPanel(parent)
 	dpObject = new DoublePendulum();
 }
 
-void DrawingPane::paintEvent(wxPaintEvent &evt)
+void DrawingPanel::paintEvent(wxPaintEvent &evt)
 {
 	dpObject->updateOrigin(x_o, y_o);
-	originCircle = new CircleObject(*this, x_o, y_o, originSize, wxYELLOW_BRUSH, 5, wxBLACK);
-	originLine = new LineObject(*this, x_o - originLineLength * 0.5, y_o, x_o + originLineLength * 0.5, y_o, 5, wxRED);
+	originCircle = new CircleObject(this, x_o, y_o, originSize, wxYELLOW_BRUSH, 5, wxBLACK);
+	originLine = new LineObject(this, x_o - originLineLength * 0.5, y_o, x_o + originLineLength * 0.5, y_o, 5, wxRED);
 	auto [radiusBob1, radiusBob2] = dpObject->getRadiusSize();
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->getPositions();
-	bob1Circle = new CircleObject(*this, xBob1, yBob1, radiusBob1, wxGREEN_BRUSH, 2, wxGREEN);
-	bob1Line = new LineObject(*this, x_o, y_o, xBob1, yBob1, 2, wxBLACK);
-	bob2Circle = new CircleObject(*this, xBob2, yBob2, radiusBob2, wxBLUE_BRUSH, 2, wxBLUE);
-	bob2Line = new LineObject(*this, xBob1, yBob1, xBob2, yBob2, 2, wxBLACK);
-	tracerLine = new TracerObject(*this, 1, wxBLACK);
+	bob1Circle = new CircleObject(this, xBob1, yBob1, radiusBob1, wxGREEN_BRUSH, 2, wxGREEN);
+	bob1Line = new LineObject(this, x_o, y_o, xBob1, yBob1, 2, wxBLACK);
+	bob2Circle = new CircleObject(this, xBob2, yBob2, radiusBob2, wxBLUE_BRUSH, 2, wxBLUE);
+	bob2Line = new LineObject(this, xBob1, yBob1, xBob2, yBob2, 2, wxBLACK);
+	tracerLine = new TracerObject(this, 1, wxBLACK);
 
 	drawObjects();
 	paintEventDone = true;
 }
 
-void DrawingPane::onSize(wxSizeEvent &event)
+void DrawingPanel::onSize(wxSizeEvent &event)
 {
 	wxSize size = event.GetSize();
 	printf("\nSize of drawingPane: %d, %d", size.x, size.y);
@@ -67,7 +67,7 @@ void DrawingPane::onSize(wxSizeEvent &event)
 	event.Skip();
 }
 
-void DrawingPane::leftClick(wxMouseEvent &event)
+void DrawingPanel::leftClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	printf("\nleft click @ x: %d, y: %d", pt.x, pt.y);
@@ -82,20 +82,20 @@ void DrawingPane::leftClick(wxMouseEvent &event)
 	}
 }
 
-std::tuple<float, float, float, float, float> DrawingPane::getSettings()
+std::tuple<float, float, float, float, float> DrawingPanel::getSettings()
 {
 	auto [_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor] = dpObject->getSettings();
 	return { _massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor };
 }
 
-void DrawingPane::setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor)
+void DrawingPanel::setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor)
 {
 	//if (!paintEventDone) return;
 	dpObject->setSettings(_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor);
 	updateObjects();
 }
 
-void DrawingPane::rightClick(wxMouseEvent &event)
+void DrawingPanel::rightClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	dragBob1Enabled = false;
@@ -104,7 +104,7 @@ void DrawingPane::rightClick(wxMouseEvent &event)
 	printf("\nright click @ x: %d, y: %d, runabled: %d", pt.x, pt.y, runEnabled);
 }
 
-void DrawingPane::mouseMoved(wxMouseEvent &event)
+void DrawingPanel::mouseMoved(wxMouseEvent &event)
 {
 	if (dragBob1Enabled || dragBob2Enabled)
 	{
@@ -123,7 +123,7 @@ void DrawingPane::mouseMoved(wxMouseEvent &event)
 	}
 }
 
-void DrawingPane::animateDoublePendulum()
+void DrawingPanel::animateDoublePendulum()
 {
 	float deltaTime = 0.0001;
 	bool blit = false;
@@ -155,12 +155,13 @@ void DrawingPane::animateDoublePendulum()
 	}
 }
 
-void DrawingPane::controlAction(Control control)
+void DrawingPanel::controlAction(Control control)
 {
 	switch (control)
 	{
 	case START:
 		runEnabled = true;
+		tracerLine->clear();
 		dpObject->clearThetaDotDoubleDot();
 		animateDoublePendulum();
 		break;
@@ -188,12 +189,16 @@ void DrawingPane::controlAction(Control control)
 		updateObjects();
 		break;
 	case SWITCHCOLOR:
-		printf("\nNot yet implemented ...");
+		auto [BrushColor1, Color1] = bob1Circle->getColors();
+		auto [BrushColor2, Color2] = bob2Circle->getColors();
+		bob1Circle->setColors(BrushColor2, Color2);
+		bob2Circle->setColors(BrushColor1, Color1);
+		updateObjects();
 		break;
 	}
 }
 
-void DrawingPane::drawObjects()
+void DrawingPanel::drawObjects()
 {
 	// draw fixed items
 	if (tracerEnabled) tracerLine->draw();
@@ -205,7 +210,7 @@ void DrawingPane::drawObjects()
 	bob2Line->draw();
 }
 
-void DrawingPane::updateObjects()
+void DrawingPanel::updateObjects()
 {
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->getPositions();
 	auto [radiusBob1, radiusBob2] = dpObject->getRadiusSize();
@@ -215,7 +220,7 @@ void DrawingPane::updateObjects()
 	bob1Line->update(x_o, y_o, xBob1, yBob1);
 	bob2Circle->update(xBob2, yBob2, radiusBob2);
 	bob2Line->update(xBob1, yBob1, xBob2, yBob2);
-	if (blitCount % 2 == 0)
+	if (tracerEnabled && (blitCount % 2 == 0))
 		tracerLine->update(xBob2, yBob2);
 	wxClientDC dc(this);
 	dc.Clear();

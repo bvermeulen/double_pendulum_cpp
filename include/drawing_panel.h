@@ -1,5 +1,5 @@
-#ifndef DRAWINGPANE_H
-#define DRAWINGPANE_H
+#ifndef DRAWINGPANEL_H
+#define DRAWINGPANEL_H
 #include <wx/wx.h>
 #include <tuple>
 
@@ -8,7 +8,7 @@ class LineObject;
 class TracerObject;
 class DoublePendulum;
 
-class DrawingPane : public wxPanel
+class DrawingPanel : public wxPanel
 {
 private:
 	bool dragBob1Enabled, dragBob2Enabled, runEnabled, paintEventDone, tracerEnabled;
@@ -31,7 +31,7 @@ public:
 		TRACE_CLEAR,
 		SWITCHCOLOR
 	};
-	DrawingPane(wxFrame *parent);
+	DrawingPanel(wxFrame *parent);
 	void paintEvent(wxPaintEvent &evt);
 	void onSize(wxSizeEvent &event);
 	void animateDoublePendulum();
