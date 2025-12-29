@@ -3,5 +3,6 @@
 	"files.associations": {
 		"*.cpp": "cpp",
 		"algorithm": "cpp"
-	}
+	},
+	"cmake.sourceDirectory": "D:/OneDrive/Development/double_pendulum_cpp/src"
 }
