@@ -7,6 +7,8 @@
 #include <drawing_panel.h>
 #include <objects.h>
 #define CLOCKS_PER_MS (CLOCKS_PER_SEC * 0.001)
+#define FRAME_RATE 25
+#define FRAME_RATE_MARGIN 10
 
 // catch paint events
 BEGIN_EVENT_TABLE(DrawingPanel, wxPanel)
@@ -85,12 +87,12 @@ void DrawingPanel::leftClick(wxMouseEvent &event)
 std::tuple<float, float, float, float, float> DrawingPanel::getSettings()
 {
 	auto [_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor] = dpObject->getSettings();
-	return { _massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor };
+	return {_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor};
 }
 
 void DrawingPanel::setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor)
 {
-	//if (!paintEventDone) return;
+	// if (!paintEventDone) return;
 	dpObject->setSettings(_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor);
 	updateObjects();
 }
@@ -141,8 +143,8 @@ void DrawingPanel::animateDoublePendulum()
 			if (!runEnabled)
 				break;
 			_now = clock() / CLOCKS_PER_MS;
-			// blit every 25 msecs - 50 times per second
-			if (((int)_now % 25 < 10))
+			// blit every FRAME_RATE msecs - 50 times per second for a FRAME_RATE of 25.
+			if (((int)_now % FRAME_RATE < FRAME_RATE_MARGIN))
 				blit = true;
 			wxYield();
 		}
@@ -201,7 +203,8 @@ void DrawingPanel::controlAction(Control control)
 void DrawingPanel::drawObjects()
 {
 	// draw fixed items
-	if (tracerEnabled) tracerLine->draw();
+	if (tracerEnabled)
+		tracerLine->draw();
 	bob1Circle->draw();
 	bob1Line->draw();
 	originCircle->draw();

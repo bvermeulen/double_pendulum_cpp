@@ -11,12 +11,12 @@ DoublePendulum::DoublePendulum()
 	radiusFactor = 2.0;
 	gravitationalConstant = 9.8;
 	dampingFactor = 0.0;
-	theta1 = 2.09;
+	theta1 = -2.741563189;
 	theta1Dot = 0.0;
 	theta1DoubleDot = 0.0;
 	lengthBob1 = 5.0;
 	massBob1 = 5.0;
-	theta2 = -3.14;
+	theta2 = +2.74627558;
 	theta2Dot = 0.0;
 	theta2DoubleDot = 0.0;
 	lengthBob2 = 2.50;
@@ -54,11 +54,16 @@ std::tuple<float, float, float, float, float> DoublePendulum::getSettings()
 void DoublePendulum::setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor)
 {
 	// if you do not want to change a setting provide -1 as parameter
-	if (_massBob1 > 0.0) massBob1 = _massBob1;
-	if (_lengthBob1 > 0.0) lengthBob1 = _lengthBob1;
-	if (_massBob2 > 0.0) massBob2 = _massBob2;
-	if (_lengthBob2 > 0.0) lengthBob2 = _lengthBob2;
-	if (_dampingFactor > 0.0) dampingFactor = _dampingFactor;
+	if (_massBob1 > 0.0)
+		massBob1 = _massBob1;
+	if (_lengthBob1 > 0.0)
+		lengthBob1 = _lengthBob1;
+	if (_massBob2 > 0.0)
+		massBob2 = _massBob2;
+	if (_lengthBob2 > 0.0)
+		lengthBob2 = _lengthBob2;
+	if (_dampingFactor > 0.0)
+		dampingFactor = _dampingFactor;
 }
 
 void DoublePendulum::updateOrigin(float x, float y)

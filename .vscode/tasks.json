@@ -3,18 +3,18 @@
 	"tasks": [
 		{
 			"type": "cppbuild",
-			"label": "debug",
+			"label": "debug double pendulum",
 			"command": "D:/cpp/mingw64/bin/g++.exe",
 			"args": [
 				"-g",
 				"-Wall",
 				"${workspaceFolder}/src/*.cpp",
 				"-o",
-				"${workspaceFolder}/build/debug/${fileBasenameNoExtension}.exe",
+				"${workspaceFolder}/build/debug/dp_app.exe",
 				"-I${workspaceFolder}/include",
-				"-IC:/Program Files (x86)/wxWidgets/include",
-				"-IC:/Program Files (x86)/wxWidgets/lib/gcc_x64_dll/mswud",
-				"-LC:/Program Files (x86)/wxWidgets/lib/gcc_x64_dll",
+				"-Id:/cpp/wxWidgets/include",
+				"-Id:/cpp/wxWidgets/build/lib/gcc_x64_dll/mswud",
+				"-Ld:/cpp/wxWidgets/build/lib/gcc_x64_dll",
 				"-lwxmsw32ud_core",
 				"-lwxbase32ud",
 			],
@@ -29,39 +29,6 @@
 				"isDefault": true
 			},
 			"detail": "compiler: D:\\cpp\\mingw64\\bin\\g++.exe"
-		},
-		{
-			"type": "cppbuild",
-			"label": "release",
-			"command": "D:/cpp/mingw64/bin/g++.exe",
-			"args": [
-				"${fileDirname}/*.cpp",
-				"-o",
-				"${workspaceFolder}/build/release/${fileBasenameNoExtension}.exe",
-				"-I",
-				"${workspaceFolder}/include",
-				"-I",
-				"C:/Program Files (x86)/wxWidgets/include",
-				"-I",
-				"C:/Program Files (x86)/wxWidgets/lib/gcc_x64_dll/mswu",
-				"-L",
-				"C:/Program Files (x86)/wxWidgets/lib/gcc_x64_dll",
-				"-l",
-				"wxmsw32u_core",
-				"-l",
-				"wxbase32u",
-			],
-			"options": {
-				"cwd": "D:\\cpp\\mingw64\\bin"
-			},
-			"problemMatcher": [
-				"$gcc"
-			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"detail": "compiler: D:/cpp/mingw64/bin/g++.exe"
 		}
 	]
 }

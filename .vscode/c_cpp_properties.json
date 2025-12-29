@@ -4,8 +4,8 @@
             "name": "Win64",
             "includePath": [
                 "${workspaceFolder}/include/**",
-                "C:/Program Files (x86)/wxwidgets/include/**",
-                "C:/Program Files (x86)/wxwidgets/lib/gcc_x64_dll/**"
+                "d:/cpp/wxwidgets/include/**",
+                "d:/cpp/wxwidgets/build/lib/gcc_x64_dll/mswud"
             ],
             "defines": [
                 "_DEBUG",
