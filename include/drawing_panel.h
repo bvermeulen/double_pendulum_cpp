@@ -1,6 +1,7 @@
 #ifndef DRAWINGPANEL_H
 #define DRAWINGPANEL_H
 #include <wx/wx.h>
+#include <wx/event.h>
 #include <tuple>
 
 class CircleObject;
@@ -8,16 +9,32 @@ class LineObject;
 class TracerObject;
 class DoublePendulum;
 
+wxDECLARE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
+
 class DrawingPanel : public wxPanel
 {
-private:
-	bool dragBob1Enabled, dragBob2Enabled, runEnabled, paintEventDone, tracerEnabled;
-	float x_o, y_o, originLineLength, originSize;
-	int blitCount;
-	CircleObject *originCircle, *bob1Circle, *bob2Circle;
-	LineObject *originLine, *bob1Line, *bob2Line;
-	TracerObject *tracerLine;
-	DoublePendulum *dpObject;
+	private:
+		bool dragBob1Enabled, dragBob2Enabled, runEnabled, paintEventDone, tracerEnabled;
+		float x_o, y_o, originLineLength, originSize;
+		u_long timeCounter;
+		u_long newTimeCounter_1;
+		u_long newTimeCounter_2;
+		u_long newTimeCounter_3;
+		double deltaTime;
+		double _time;
+		CircleObject *originCircle, *bob1Circle, *bob2Circle;
+		LineObject *originLine, *bob1Line, *bob2Line;
+		TracerObject *tracerLine;
+		DoublePendulum *dpObject;
+		void animateDoublePendulum();
+		void updateObjects();
+		void drawObjects();
+		void mouseMoved(wxMouseEvent &event);
+		void leftClick(wxMouseEvent &event);
+		void rightClick(wxMouseEvent &event);
+		void paintEvent(wxPaintEvent &event);
+		void onSize(wxSizeEvent &event);
+		void updateValues();
 
 public:
 	enum Control
@@ -32,25 +49,12 @@ public:
 		SWITCHCOLOR
 	};
 	DrawingPanel(wxFrame *parent);
-	void paintEvent(wxPaintEvent &evt);
-	void onSize(wxSizeEvent &event);
-	void animateDoublePendulum();
 	void controlAction(Control control);
 	std::tuple<float, float, float, float, float> getSettings();
 	void setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor);
-	void updateObjects();
-	void drawObjects();
-	void mouseMoved(wxMouseEvent &event);
-	// void mouseDown(wxMouseEvent &event);
-	// void mouseWheelMoved(wxMouseEvent &event);
-	// void mouseReleased(wxMouseEvent &event);
-	void leftClick(wxMouseEvent &event);
-	void rightClick(wxMouseEvent &event);
-	// void mouseLeftWindow(wxMouseEvent &event);
-	// void keyPressed(wxKeyEvent &event);
-	// void keyReleased(wxKeyEvent &event);
+	double getTime();
 
-	DECLARE_EVENT_TABLE()
+
 };
 
 #endif // DRAWINGPANE_H

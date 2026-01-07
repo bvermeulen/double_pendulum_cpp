@@ -103,14 +103,11 @@ TracerObject::TracerObject(
 
 void TracerObject::draw()
 {
-	unsigned int size;
 	wxClientDC dc(drawingPanelPointer);
 	dc.SetPen(wxPen(*colorPointer, lineWidth));
-	size = tracerVector.size();
+	unsigned int size = getSize();
 	if (size > 0)
 		dc.DrawLines(size, &tracerVector[0]);
-	if (size % 100 == 0)
-		printf("\ntracer vector size: %8lld", tracerVector.size());
 }
 
 void TracerObject::update(float x, float y)
@@ -121,4 +118,9 @@ void TracerObject::update(float x, float y)
 void TracerObject::clear()
 {
 	tracerVector.clear();
+}
+
+unsigned int TracerObject::getSize()
+{
+	return tracerVector.size();
 }

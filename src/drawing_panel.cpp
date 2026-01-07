@@ -11,34 +11,30 @@
 #define FRAME_RATE_MARGIN 10
 
 // catch paint events
-BEGIN_EVENT_TABLE(DrawingPanel, wxPanel)
-EVT_PAINT(DrawingPanel::paintEvent)
-EVT_MOTION(DrawingPanel::mouseMoved)
-// EVT_LEFT_DOWN(DrawingPanel::mouseDown)
-// EVT_LEFT_UP(DrawingPanel::mouseReleased)
-EVT_LEFT_DOWN(DrawingPanel::leftClick)
-EVT_RIGHT_DOWN(DrawingPanel::rightClick)
-// EVT_LEAVE_WINDOW(DrawingPanel::mouseLeftWindow)
-// EVT_KEY_DOWN(DrawingPanel::keyPressed)
-// EVT_KEY_UP(DrawingPanel::keyReleased)
-// EVT_MOUSEWHEEL(DrawingPanel::mouseWheelMoved)
-EVT_SIZE(DrawingPanel::onSize)
-END_EVENT_TABLE()
+wxDEFINE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
+
 
 DrawingPanel::DrawingPanel(wxFrame *parent) : wxPanel(parent)
 {
 	originLineLength = 100;
 	originSize = 10;
-	blitCount = 0;
+	timeCounter = 0;
 	dragBob1Enabled = false;
 	dragBob2Enabled = false;
 	runEnabled = false;
 	paintEventDone = false;
 	tracerEnabled = false;
+	deltaTime = 0.0001;
 	dpObject = new DoublePendulum();
+
+	Bind(wxEVT_PAINT, paintEvent, this);
+	Bind(wxEVT_MOTION, mouseMoved, this);
+	Bind(wxEVT_LEFT_DOWN, leftClick, this);
+	Bind(wxEVT_RIGHT_DOWN, rightClick, this);
+	Bind(wxEVT_SIZE, onSize, this);
 }
 
-void DrawingPanel::paintEvent(wxPaintEvent &evt)
+void DrawingPanel::paintEvent(wxPaintEvent &event)
 {
 	dpObject->updateOrigin(x_o, y_o);
 	originCircle = new CircleObject(this, x_o, y_o, originSize, wxYELLOW_BRUSH, 5, wxBLACK);
@@ -97,6 +93,11 @@ void DrawingPanel::setSettings(float _massBob1, float _lengthBob1, float _massBo
 	updateObjects();
 }
 
+double DrawingPanel::getTime()
+{
+	return _time;
+}
+
 void DrawingPanel::rightClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
@@ -127,32 +128,38 @@ void DrawingPanel::mouseMoved(wxMouseEvent &event)
 
 void DrawingPanel::animateDoublePendulum()
 {
-	float deltaTime = 0.0001;
-	bool blit = false;
-	float _time = clock() / CLOCKS_PER_MS;
-	float _now = clock() / CLOCKS_PER_MS;
+	_time = clock() / CLOCKS_PER_MS;
+	double _now = _time;
+	newTimeCounter_1 = 0;
+	newTimeCounter_2 = 0;
+	newTimeCounter_3 = 0;
 	while (runEnabled)
 	{
-		dpObject->calcThetaDoubleDot();
-		dpObject->calcThetaDot(deltaTime);
+		dpObject->calcThetaDotRK4(deltaTime);
+		_time += deltaTime * 1000;
+		timeCounter++;
 
 		// wait loop for time to keep in pace
-		_time += deltaTime * 1000;
 		while (_now < _time)
 		{
 			if (!runEnabled)
 				break;
 			_now = clock() / CLOCKS_PER_MS;
-			// blit every FRAME_RATE msecs - 50 times per second for a FRAME_RATE of 25.
-			if (((int)_now % FRAME_RATE < FRAME_RATE_MARGIN))
-				blit = true;
 			wxYield();
 		}
-		if (blit)
+
+		// blit every FRAME_RATE msecs - 50 times per second for a FRAME_RATE of 25.
+		if (timeCounter % int(FRAME_RATE / (1000 * deltaTime)) == 0 && timeCounter != newTimeCounter_1)
 		{
 			updateObjects();
-			blitCount++;
-			blit = false;
+			newTimeCounter_1 = timeCounter;
+		}
+
+		// every 1 second (1000 ms)
+		if (timeCounter % int(1000 / (1000 * deltaTime)) == 0 && timeCounter != newTimeCounter_2)
+		{
+			updateValues();
+			newTimeCounter_2 = timeCounter;
 		}
 	}
 }
@@ -161,36 +168,36 @@ void DrawingPanel::controlAction(Control control)
 {
 	switch (control)
 	{
-	case START:
+		case START:
 		runEnabled = true;
 		tracerLine->clear();
 		dpObject->clearThetaDotDoubleDot();
 		animateDoublePendulum();
 		break;
-	case STOP:
+		case STOP:
 		runEnabled = false;
 		dpObject->clearThetaDotDoubleDot();
 		break;
-	case PAUSE:
+		case PAUSE:
 		runEnabled = false;
 		break;
-	case RUN:
+		case RUN:
 		runEnabled = true;
 		animateDoublePendulum();
 		break;
-	case TRACE_ON:
+		case TRACE_ON:
 		tracerEnabled = true;
 		updateObjects();
 		break;
-	case TRACE_OFF:
+		case TRACE_OFF:
 		tracerEnabled = false;
 		updateObjects();
 		break;
-	case TRACE_CLEAR:
+		case TRACE_CLEAR:
 		tracerLine->clear();
 		updateObjects();
 		break;
-	case SWITCHCOLOR:
+		case SWITCHCOLOR:
 		auto [BrushColor1, Color1] = bob1Circle->getColors();
 		auto [BrushColor2, Color2] = bob2Circle->getColors();
 		bob1Circle->setColors(BrushColor2, Color2);
@@ -204,7 +211,7 @@ void DrawingPanel::drawObjects()
 {
 	// draw fixed items
 	if (tracerEnabled)
-		tracerLine->draw();
+	tracerLine->draw();
 	bob1Circle->draw();
 	bob1Line->draw();
 	originCircle->draw();
@@ -223,9 +230,22 @@ void DrawingPanel::updateObjects()
 	bob1Line->update(x_o, y_o, xBob1, yBob1);
 	bob2Circle->update(xBob2, yBob2, radiusBob2);
 	bob2Line->update(xBob1, yBob1, xBob2, yBob2);
-	if (tracerEnabled && (blitCount % 2 == 0))
+	if (tracerEnabled && timeCounter % int(50 / (1000 * deltaTime)) == 0 && timeCounter != newTimeCounter_3)
+	{
 		tracerLine->update(xBob2, yBob2);
+		newTimeCounter_3 = timeCounter;
+		unsigned int size = tracerLine->getSize();
+		if (size % 100 == 0)
+		printf("\ntracer vector size: %u", size);
+	}
 	wxClientDC dc(this);
 	dc.Clear();
 	drawObjects();
+}
+
+void DrawingPanel::updateValues()
+{
+	wxCommandEvent customEvent(EVT_UPDATE_VALUES, GetId());
+	customEvent.SetString(std::to_string(timeCounter));
+	wxPostEvent(this, customEvent);
 }

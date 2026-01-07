@@ -68,6 +68,7 @@ public:
 	void draw();
 	void update(float x, float y);
 	void clear();
+	unsigned int getSize();
 };
 
 #endif // OBJECTS_H

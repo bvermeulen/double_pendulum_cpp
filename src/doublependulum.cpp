@@ -28,15 +28,15 @@ DoublePendulum::DoublePendulum()
 	std::tie(radiusBob1, radiusBob2) = getRadiusSize();
 }
 
-std::tuple<float, float> DoublePendulum::getRadiusSize()
+std::tuple<double, double> DoublePendulum::getRadiusSize()
 {
 	// implement mass ~ radius ** 3
 	return {massBob1 * radiusFactor, massBob2 * radiusFactor};
 }
 
-std::tuple<float, float, float, float> DoublePendulum::getPositions()
+std::tuple<double, double, double, double> DoublePendulum::getPositions()
 {
-	float x, y;
+	double x, y;
 	std::tie(x, y) = gonio_funcs::calcXY(lengthBob1 * modelFactor, theta1);
 	xBob1 = x_o + x;
 	yBob1 = y_o + y;
@@ -46,12 +46,12 @@ std::tuple<float, float, float, float> DoublePendulum::getPositions()
 	return {xBob1, yBob1, xBob2, yBob2};
 }
 
-std::tuple<float, float, float, float, float> DoublePendulum::getSettings()
+std::tuple<double, double, double, double, double> DoublePendulum::getSettings()
 {
 	return {massBob1, lengthBob1, massBob2, lengthBob2, dampingFactor};
 }
 
-void DoublePendulum::setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor)
+void DoublePendulum::setSettings(double _massBob1, double _lengthBob1, double _massBob2, double _lengthBob2, double _dampingFactor)
 {
 	// if you do not want to change a setting provide -1 as parameter
 	if (_massBob1 > 0.0)
@@ -66,53 +66,93 @@ void DoublePendulum::setSettings(float _massBob1, float _lengthBob1, float _mass
 		dampingFactor = _dampingFactor;
 }
 
-void DoublePendulum::updateOrigin(float x, float y)
+void DoublePendulum::updateOrigin(double x, double y)
 {
 	x_o = x;
 	y_o = y;
 }
 
-void DoublePendulum::updateThetaBob1(float x, float y)
+void DoublePendulum::updateThetaBob1(double x, double y)
 {
 	theta1 = gonio_funcs::calcTheta(x - x_o, y - y_o, 0.0);
 }
 
-void DoublePendulum::updateThetaBob2(float x, float y)
+void DoublePendulum::updateThetaBob2(double x, double y)
 {
 	theta2 = gonio_funcs::calcTheta(x - xBob1, y - yBob1, 0.0);
 }
 
-void DoublePendulum::calcThetaDoubleDot()
+void DoublePendulum::calcThetaDoubleDot(double t1, double t2)
 /*
 definition of ordinary differential equation for a double pendulum
 */
 {
-	float num1, num2, num3, num4, den;
-	num1 = -gravitationalConstant * (2 * massBob1 + massBob2) * sin(theta1);
-	num2 = -massBob2 * gravitationalConstant * sin(theta1 - 2 * theta2);
-	num3 = -2 * sin(theta1 - theta2) * massBob2;
-	num4 = theta2Dot * theta2Dot * lengthBob2 + theta1Dot * theta1Dot * lengthBob2 * cos(theta1 - theta2);
-	den = lengthBob1 * (2 * massBob1 + massBob2 - massBob2 * cos(2 * theta1 - 2 * theta2));
-	theta1DoubleDot = (num1 + num2 + num3 * num4) / den;
+    double _n1, _n2, _n3, _n4;
+    double dt = t1 - t2;
+    double _sin_dt = sin(dt);
+    double _den = (massBob1 + massBob2 * _sin_dt * _sin_dt);
 
-	num1 = 2 * sin(theta1 - theta2);
-	num2 = (theta1Dot * theta1Dot * lengthBob1 * (massBob1 + massBob2));
-	num3 = gravitationalConstant * (massBob1 + massBob2) * cos(theta1);
-	num4 = (theta2Dot * theta2Dot * lengthBob2 * massBob2 * cos(theta1 - theta2));
-	den = lengthBob2 * (2 * massBob1 + massBob2 - massBob2 * cos(2 * theta1 - 2 * theta2));
-	theta2DoubleDot = (num1 * (num2 + num3 + num4)) / den;
+    _n1 = massBob2 * lengthBob1 * theta1Dot * theta1Dot * sin(2*dt);
+    _n2 = 2 * massBob2 * lengthBob2 * theta2Dot * theta2Dot * _sin_dt;
+    _n3 = 2 * gravitationalConstant * (massBob2 * cos(t2) * _sin_dt + massBob1 * sin(t1));
+    _n4 = 2 * (dampingFactor * theta1Dot - dampingFactor * theta2Dot * cos(dt));
+    theta1DoubleDot = (_n1 + _n2 + _n3 + _n4)/ (-2 * lengthBob1 * _den);
+
+    _n1 = massBob2 * lengthBob2 * theta2Dot * theta2Dot * sin(2*dt);
+    _n2 = 2 * (massBob1 + massBob2) * lengthBob1 * theta1Dot * theta1Dot * _sin_dt;
+    _n3 = 2 * gravitationalConstant * (massBob1 + massBob2) * cos(t1) * _sin_dt;
+    _n4 = 2 * (dampingFactor * theta1Dot * cos(dt) - dampingFactor * theta2Dot * (massBob1 + massBob2)/ massBob2);
+    theta2DoubleDot = (_n1 + _n2 + _n3 + _n4)/ (2 * lengthBob2 *_den);
 }
 
-void DoublePendulum::calcThetaDot(float deltaTime)
+void DoublePendulum::calcThetaDotEuler(double deltaTime)
 /*
-create a generator that solves the ODE by calculating the integral and yielding time(in ms) and theta.
+create a generator that solves the ODE by calculating the integral and yielding time(in ms) and theta, 
+using the Euler method
 */
 {
-	this->calcThetaDoubleDot();
-	theta1Dot += theta1DoubleDot * deltaTime * (1.0 - dampingFactor);
-	theta2Dot += theta2DoubleDot * deltaTime * (1.0 - dampingFactor);
+	calcThetaDoubleDot(theta1, theta2);
+	theta1Dot += theta1DoubleDot * deltaTime;
 	theta1 += theta1Dot * deltaTime;
+	theta2Dot += theta2DoubleDot * deltaTime;
 	theta2 += theta2Dot * deltaTime;
+}
+
+void DoublePendulum::calcThetaDotRK4(double deltaTime)
+/*
+create a generator that solves the ODE by calculating the integral and yielding time(in ms) and theta, 
+using the Runge-Kutta 4 method
+*/
+{
+    calcThetaDoubleDot(theta1, theta2);
+    double V10 = deltaTime * theta1Dot;
+    double A10 = deltaTime * theta1DoubleDot;
+    double V20 = deltaTime * theta2Dot;
+    double A20 = deltaTime * theta2DoubleDot;
+
+    calcThetaDoubleDot(theta1 + 0.5*V10, theta2 + 0.5*V20);
+    double V11 = deltaTime * (theta1Dot + 0.5*A10);
+    double A11 = deltaTime * theta1DoubleDot;
+    double V21 = deltaTime * (theta2Dot + 0.5*A20);
+    double A21 = deltaTime * theta2DoubleDot;
+
+    calcThetaDoubleDot(theta1 + 0.5*V11, theta2 + 0.5*V21);
+    double V12 = deltaTime * (theta1Dot + 0.5*A11);
+    double A12 = deltaTime * theta1DoubleDot;
+    double V22 = deltaTime * (theta2Dot + 0.5*A21);
+    double A22 = deltaTime * theta2DoubleDot;
+
+    calcThetaDoubleDot(theta1 + 0.5*V12, theta2 + 0.5*V22);
+    double V13 = deltaTime * (theta1Dot + 0.5*A12);
+    double A13 = deltaTime * theta1DoubleDot;
+    double V23 = deltaTime * (theta2Dot + 0.5*A22);
+    double A23 = deltaTime * theta2DoubleDot;
+
+    const double den = 1.0 / 6.0;
+    theta1 += den * (V10+2.0*V11+2.0*V12+V13);
+    theta1Dot += den * (A10+2.0*A11+2.0*A12+A13);
+    theta2 += den * (V20+2.0*V21+2.0*V22+V23);
+    theta2Dot += den * (A20+2.0*A21+2.0*A22+A23);
 }
 
 void DoublePendulum::clearThetaDotDoubleDot()
