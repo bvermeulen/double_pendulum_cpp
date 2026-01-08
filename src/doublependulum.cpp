@@ -45,13 +45,9 @@ void HarmOscillator::operator() (const state_type &thetaState, state_type &theta
 }
 
 DoublePendulum::DoublePendulum(
-    
+
 )
 {
-	x_o = 0.0;
-	y_o = 0.0;
-	modelFactor = 25;
-	radiusFactor = 2.0;
 	gravitationalConstant = 9.8;
 	dampingFactor = 0.0;
 	theta1 = -2.741563189;
@@ -86,16 +82,16 @@ DoublePendulum::DoublePendulum(
 std::tuple<double, double> DoublePendulum::getRadiusSize()
 {
 	// implement mass ~ radius ** 3
-	return {massBob1 * radiusFactor, massBob2 * radiusFactor};
+	return {massBob1, massBob2};
 }
 
 std::tuple<double, double, double, double> DoublePendulum::getPositions()
 {
 	double x, y;
-	std::tie(x, y) = gonio_funcs::calcXY(lengthBob1 * modelFactor, theta1);
-	xBob1 = x_o + x;
-	yBob1 = y_o + y;
-	std::tie(x, y) = gonio_funcs::calcXY(lengthBob2 * modelFactor, theta2);
+	std::tie(x, y) = gonio_funcs::calcXY(lengthBob1, theta1);
+	xBob1 = x;
+	yBob1 = y;
+	std::tie(x, y) = gonio_funcs::calcXY(lengthBob2, theta2);
 	xBob2 = xBob1 + x;
 	yBob2 = yBob1 + y;
 	return {xBob1, yBob1, xBob2, yBob2};
@@ -127,15 +123,9 @@ void DoublePendulum::setSettings(double _massBob1, double _lengthBob1, double _m
     );
 }
 
-void DoublePendulum::updateOrigin(double x, double y)
-{
-	x_o = x;
-	y_o = y;
-}
-
 void DoublePendulum::updateThetaBob1(double x, double y)
 {
-	theta1 = gonio_funcs::calcTheta(x - x_o, y - y_o, 0.0);
+	theta1 = gonio_funcs::calcTheta(x, y, 0.0);
 }
 
 void DoublePendulum::updateThetaBob2(double x, double y)
@@ -234,6 +224,8 @@ void DoublePendulum::clearThetaDotDoubleDot()
 	theta1DoubleDot = 0.0;
 	theta2Dot = 0.0;
 	theta2DoubleDot = 0.0;
+    thetaState[0] = theta1;
+    thetaState[1] = theta2;
     thetaState[2] = theta1Dot;
     thetaState[3] = theta2Dot;
 }

@@ -15,6 +15,10 @@ wxDEFINE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
 
 DrawingPanel::DrawingPanel(wxFrame *parent) : wxPanel(parent)
 {
+	x_o = 0.0;
+	y_o = 0.0;
+	modelFactor = 25;
+	radiusFactor = 2.0;
 	originLineLength = 100;
 	originSize = 10;
 	timeCounter = 0;
@@ -33,13 +37,30 @@ DrawingPanel::DrawingPanel(wxFrame *parent) : wxPanel(parent)
 	Bind(wxEVT_SIZE, onSize, this);
 }
 
+std::tuple<double, double, double, double, double, double> DrawingPanel::fitToPanel(
+	double x1, double y1,
+	double x2, double y2,
+	double r1, double r2
+)
+{
+	x1 = x_o + x1 * modelFactor;
+	y1 = y_o + y1 * modelFactor;
+	x2 = x_o + x2 * modelFactor;
+	y2 = y_o + y2 * modelFactor;
+	r1 *= radiusFactor;
+	r2 *= radiusFactor;
+	return std::tuple(x1, y1, x2, y2, r1, r2);
+}
+
 void DrawingPanel::paintEvent(wxPaintEvent &event)
 {
-	dpObject->updateOrigin(x_o, y_o);
 	originCircle = new CircleObject(this, x_o, y_o, originSize, wxYELLOW_BRUSH, 5, wxBLACK);
 	originLine = new LineObject(this, x_o - originLineLength * 0.5, y_o, x_o + originLineLength * 0.5, y_o, 5, wxRED);
 	auto [radiusBob1, radiusBob2] = dpObject->getRadiusSize();
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->getPositions();
+	std::tie(xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2) = fitToPanel(
+		xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2
+	);
 	bob1Circle = new CircleObject(this, xBob1, yBob1, radiusBob1, wxGREEN_BRUSH, 2, wxGREEN);
 	bob1Line = new LineObject(this, x_o, y_o, xBob1, yBob1, 2, wxBLACK);
 	bob2Circle = new CircleObject(this, xBob2, yBob2, radiusBob2, wxBLUE_BRUSH, 2, wxBLUE);
@@ -58,25 +79,9 @@ void DrawingPanel::onSize(wxSizeEvent &event)
 	y_o = size.y * 0.5;
 	if (paintEventDone)
 	{
-		dpObject->updateOrigin(x_o, y_o);
 		updateObjects();
 	}
 	event.Skip();
-}
-
-void DrawingPanel::leftClick(wxMouseEvent &event)
-{
-	wxPoint pt = event.GetPosition();
-	printf("\nleft click @ x: %d, y: %d", pt.x, pt.y);
-	if (bob1Circle->mouseHover(pt.x, pt.y))
-		dragBob1Enabled = true;
-	if (bob2Circle->mouseHover(pt.x, pt.y))
-		dragBob2Enabled = true;
-	if (originCircle->mouseHover(pt.x, pt.y))
-	{
-		runEnabled = true;
-		animateDoublePendulum();
-	}
 }
 
 std::tuple<float, float, float, float, float> DrawingPanel::getSettings()
@@ -96,12 +101,28 @@ double DrawingPanel::getTime()
 	return _time;
 }
 
+void DrawingPanel::leftClick(wxMouseEvent &event)
+{
+	wxPoint pt = event.GetPosition();
+	printf("\nleft click @ x: %d, y: %d", pt.x, pt.y);
+	if (bob1Circle->mouseHover(pt.x, pt.y))
+		dragBob1Enabled = true;
+	if (bob2Circle->mouseHover(pt.x, pt.y))
+		dragBob2Enabled = true;
+	if (originCircle->mouseHover(pt.x, pt.y))
+	{
+		runEnabled = true;
+		animateDoublePendulum();
+	}
+}
+
 void DrawingPanel::rightClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	dragBob1Enabled = false;
 	dragBob2Enabled = false;
 	runEnabled = false;
+	dpObject -> clearThetaDotDoubleDot();
 	printf("\nright click @ x: %d, y: %d, runabled: %d", pt.x, pt.y, runEnabled);
 }
 
@@ -110,13 +131,15 @@ void DrawingPanel::mouseMoved(wxMouseEvent &event)
 	if (dragBob1Enabled || dragBob2Enabled)
 	{
 		wxPoint pt = event.GetPosition();
+		double x = (pt.x - x_o) / modelFactor;
+		double y = (pt.y - y_o) / modelFactor;
 		if (dragBob1Enabled)
 		{
-			dpObject->updateThetaBob1(pt.x, pt.y);
+			dpObject->updateThetaBob1(x, y);
 		}
 		else
 		{
-			dpObject->updateThetaBob2(pt.x, pt.y);
+			dpObject->updateThetaBob2(x, y);
 		}
 		updateObjects();
 	}
@@ -220,6 +243,9 @@ void DrawingPanel::updateObjects()
 {
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->getPositions();
 	auto [radiusBob1, radiusBob2] = dpObject->getRadiusSize();
+	std::tie(xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2) = fitToPanel(
+		xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2
+	);
 	originCircle->update(x_o, y_o, originSize);
 	originLine->update(x_o - originLineLength * 0.5, y_o, x_o + originLineLength * 0.5, y_o);
 	bob1Circle->update(xBob1, yBob1, radiusBob1);

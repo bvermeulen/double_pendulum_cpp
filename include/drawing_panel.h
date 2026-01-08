@@ -15,7 +15,7 @@ class DrawingPanel : public wxPanel
 {
 	private:
 		bool dragBob1Enabled, dragBob2Enabled, runEnabled, paintEventDone, tracerEnabled;
-		float x_o, y_o, originLineLength, originSize;
+		double x_o, y_o, originLineLength, originSize, modelFactor, radiusFactor; 
 		u_long timeCounter;
 		u_long newTimeCounter_1;
 		u_long newTimeCounter_2;
@@ -26,6 +26,11 @@ class DrawingPanel : public wxPanel
 		LineObject *originLine, *bob1Line, *bob2Line;
 		TracerObject *tracerLine;
 		DoublePendulum *dpObject;
+		std::tuple<double, double, double, double, double, double> fitToPanel(
+			double x1, double y1,
+			double x2, double y2,
+			double r1, double r2
+		);
 		void animateDoublePendulum();
 		void updateObjects();
 		void drawObjects();
