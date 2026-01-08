@@ -45,6 +45,7 @@ class DoublePendulum
 	
 	public:
 		DoublePendulum();
+		~DoublePendulum();
 		std::tuple<double, double> getRadiusSize();
 		std::tuple<double, double, double, double> getPositions();
 		std::tuple<double, double, double, double, double> getSettings();

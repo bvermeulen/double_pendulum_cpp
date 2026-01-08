@@ -44,9 +44,7 @@ void HarmOscillator::operator() (const state_type &thetaState, state_type &theta
     thetaDotState[1] = thetaState[3];
 }
 
-DoublePendulum::DoublePendulum(
-
-)
+DoublePendulum::DoublePendulum()
 {
 	gravitationalConstant = 9.8;
 	dampingFactor = 0.0;
@@ -77,6 +75,11 @@ DoublePendulum::DoublePendulum(
     thetaState.emplace_back(theta2);
     thetaState.emplace_back(theta1Dot);
     thetaState.emplace_back(theta2Dot);
+}
+
+DoublePendulum::~DoublePendulum()
+{
+    delete ho;
 }
 
 std::tuple<double, double> DoublePendulum::getRadiusSize()

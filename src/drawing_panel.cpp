@@ -13,7 +13,7 @@
 wxDEFINE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
 
 
-DrawingPanel::DrawingPanel(wxFrame *parent) : wxPanel(parent)
+DrawingPanel::DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPanel(parent), dpObject(dpObjectRef)
 {
 	x_o = 0.0;
 	y_o = 0.0;
@@ -28,13 +28,23 @@ DrawingPanel::DrawingPanel(wxFrame *parent) : wxPanel(parent)
 	paintEventDone = false;
 	tracerEnabled = false;
 	deltaTime = 0.01; // 0.0001;
-	dpObject = new DoublePendulum();
 
 	Bind(wxEVT_PAINT, paintEvent, this);
 	Bind(wxEVT_MOTION, mouseMoved, this);
 	Bind(wxEVT_LEFT_DOWN, leftClick, this);
 	Bind(wxEVT_RIGHT_DOWN, rightClick, this);
 	Bind(wxEVT_SIZE, onSize, this);
+}
+
+DrawingPanel::~DrawingPanel()
+{
+	delete originCircle;
+	delete originLine;
+	delete bob1Circle;
+	delete bob1Line;
+	delete bob2Circle;
+	delete bob2Line;
+	delete tracerLine;
 }
 
 std::tuple<double, double, double, double, double, double> DrawingPanel::fitToPanel(
@@ -56,8 +66,8 @@ void DrawingPanel::paintEvent(wxPaintEvent &event)
 {
 	originCircle = new CircleObject(this, x_o, y_o, originSize, wxYELLOW_BRUSH, 5, wxBLACK);
 	originLine = new LineObject(this, x_o - originLineLength * 0.5, y_o, x_o + originLineLength * 0.5, y_o, 5, wxRED);
-	auto [radiusBob1, radiusBob2] = dpObject->getRadiusSize();
-	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->getPositions();
+	auto [radiusBob1, radiusBob2] = dpObject.getRadiusSize();
+	auto [xBob1, yBob1, xBob2, yBob2] = dpObject.getPositions();
 	std::tie(xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2) = fitToPanel(
 		xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2
 	);
@@ -82,18 +92,6 @@ void DrawingPanel::onSize(wxSizeEvent &event)
 		updateObjects();
 	}
 	event.Skip();
-}
-
-std::tuple<float, float, float, float, float> DrawingPanel::getSettings()
-{
-	auto [_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor] = dpObject->getSettings();
-	return {_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor};
-}
-
-void DrawingPanel::setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor)
-{
-	dpObject->setSettings(_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor);
-	updateObjects();
 }
 
 double DrawingPanel::getTime()
@@ -122,7 +120,7 @@ void DrawingPanel::rightClick(wxMouseEvent &event)
 	dragBob1Enabled = false;
 	dragBob2Enabled = false;
 	runEnabled = false;
-	dpObject -> clearThetaDotDoubleDot();
+	dpObject.clearThetaDotDoubleDot();
 	printf("\nright click @ x: %d, y: %d, runabled: %d", pt.x, pt.y, runEnabled);
 }
 
@@ -135,11 +133,11 @@ void DrawingPanel::mouseMoved(wxMouseEvent &event)
 		double y = (pt.y - y_o) / modelFactor;
 		if (dragBob1Enabled)
 		{
-			dpObject->updateThetaBob1(x, y);
+			dpObject.updateThetaBob1(x, y);
 		}
 		else
 		{
-			dpObject->updateThetaBob2(x, y);
+			dpObject.updateThetaBob2(x, y);
 		}
 		updateObjects();
 	}
@@ -154,7 +152,7 @@ void DrawingPanel::animateDoublePendulum()
 	newTimeCounter_3 = 0;
 	while (runEnabled)
 	{
-		dpObject->calcThetaDotBoost(deltaTime);
+		dpObject.calcThetaDotBoost(deltaTime);
 		_time += deltaTime * 1000;
 		timeCounter++;
 
@@ -190,12 +188,12 @@ void DrawingPanel::controlAction(Control control)
 		case START:
 			runEnabled = true;
 			tracerLine->clear();
-			dpObject->clearThetaDotDoubleDot();
+			dpObject.clearThetaDotDoubleDot();
 			animateDoublePendulum();
 			break;
 		case STOP:
 			runEnabled = false;
-			dpObject->clearThetaDotDoubleDot();
+			dpObject.clearThetaDotDoubleDot();
 			break;
 		case PAUSE:
 			runEnabled = false;
@@ -217,10 +215,15 @@ void DrawingPanel::controlAction(Control control)
 			updateObjects();
 			break;
 		case SWITCHCOLOR:
+		{
 			auto [BrushColor1, Color1] = bob1Circle->getColors();
 			auto [BrushColor2, Color2] = bob2Circle->getColors();
 			bob1Circle->setColors(BrushColor2, Color2);
 			bob2Circle->setColors(BrushColor1, Color1);
+			updateObjects();
+			break;
+		}
+		case UPDATE_PANEL:
 			updateObjects();
 			break;
 	}
@@ -241,8 +244,8 @@ void DrawingPanel::drawObjects()
 
 void DrawingPanel::updateObjects()
 {
-	auto [xBob1, yBob1, xBob2, yBob2] = dpObject->getPositions();
-	auto [radiusBob1, radiusBob2] = dpObject->getRadiusSize();
+	auto [xBob1, yBob1, xBob2, yBob2] = dpObject.getPositions();
+	auto [radiusBob1, radiusBob2] = dpObject.getRadiusSize();
 	std::tie(xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2) = fitToPanel(
 		xBob1, yBob1, xBob2, yBob2, radiusBob1, radiusBob2
 	);

@@ -25,7 +25,7 @@ class DrawingPanel : public wxPanel
 		CircleObject *originCircle, *bob1Circle, *bob2Circle;
 		LineObject *originLine, *bob1Line, *bob2Line;
 		TracerObject *tracerLine;
-		DoublePendulum *dpObject;
+		DoublePendulum &dpObject;
 		std::tuple<double, double, double, double, double, double> fitToPanel(
 			double x1, double y1,
 			double x2, double y2,
@@ -51,12 +51,12 @@ public:
 		TRACE_ON,
 		TRACE_OFF,
 		TRACE_CLEAR,
-		SWITCHCOLOR
+		SWITCHCOLOR,
+		UPDATE_PANEL
 	};
-	DrawingPanel(wxFrame *parent);
+	DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
+	~DrawingPanel();
 	void controlAction(Control control);
-	std::tuple<float, float, float, float, float> getSettings();
-	void setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor);
 	double getTime();
 
 

@@ -1,15 +1,17 @@
 #ifndef DP_FRAME_H
 #define DP_FRAME_H
 #include <wx/wx.h>
+#include <doublependulum.h>
 
 class DrawingPanel;
 
 class DoublePendulumFrame : public wxFrame
 {
 private:
+	DoublePendulum *dpObject;
+	DrawingPanel *drawingPanel;
 	float sliderFactor;
 	wxSize sliderSize;
-	DrawingPanel *drawingPanel;
 	wxButton *startBtn;
 	wxButton *pauseBtn;
 	wxButton *toggleTraceBtn;

@@ -2,6 +2,7 @@
 #include <wx/wx.h>
 #include <dp_frame.h>
 #include <drawing_panel.h>
+#include <doublependulum.h>
 
 
 DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("Double Pendulum"), wxPoint(0, 0), wxSize(800, 620))
@@ -16,13 +17,16 @@ DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("D
 
 DoublePendulumFrame::~DoublePendulumFrame()
 {
+	delete dpObject;
+	delete drawingPanel;
 }
 
 void DoublePendulumFrame::initUI()
 {
 	
-	drawingPanel = new DrawingPanel(this);
-	auto [massBob1, lengthBob1, massBob2, lengthBob2, dampingFactor] = drawingPanel->getSettings();
+	dpObject = new DoublePendulum();
+	auto [massBob1, lengthBob1, massBob2, lengthBob2, dampingFactor] = dpObject->getSettings();
+	drawingPanel = new DrawingPanel(this, *dpObject);
 	massBob1 *= sliderFactor;
 	massBob2 *= sliderFactor;
 	lengthBob1 *= sliderFactor;
@@ -125,14 +129,18 @@ void DoublePendulumFrame::initUI()
 
 void DoublePendulumFrame::onExit(wxCommandEvent &event)
 {
+	// delete dpObject;
+	// delete drawingPanel;
 	printf("onExit: I want to close thie app!!!!");
-	this->Destroy();
+	Destroy();
 }
 
 void DoublePendulumFrame::onClose(wxCloseEvent &event)
 {
+	// delete dpObject;
+	// delete drawingPanel;
 	printf("onExit: I want to close thie app!!!!");
-	this->Destroy();
+	Destroy();
 }
 
 void DoublePendulumFrame::onStart(wxCommandEvent &event)
@@ -194,22 +202,28 @@ void DoublePendulumFrame::onSwitchColor(wxCommandEvent &event)
 
 void DoublePendulumFrame::onMassBob_1(wxCommandEvent &event)
 {
-	drawingPanel->setSettings(sMassBob_1->GetValue() / sliderFactor, -1, -1, -1, -1);
+	dpObject->setSettings(sMassBob_1->GetValue() / sliderFactor, -1, -1, -1, -1);
+	drawingPanel->controlAction(drawingPanel->UPDATE_PANEL);
 }
 
 void DoublePendulumFrame::onMassBob_2(wxCommandEvent &event)
 {
-	drawingPanel->setSettings(-1, -1, sMassBob_2->GetValue() / sliderFactor, -1, -1);
+	dpObject->setSettings(-1, -1, sMassBob_2->GetValue() / sliderFactor, -1, -1);
+	drawingPanel->controlAction(drawingPanel->UPDATE_PANEL);
+
 }
 
 void DoublePendulumFrame::onLengthBob_1(wxCommandEvent &event)
 {
-	drawingPanel->setSettings(-1, sLengthBob_1->GetValue() / sliderFactor, -1, -1, -1);
+	dpObject->setSettings(-1, sLengthBob_1->GetValue() / sliderFactor, -1, -1, -1);
+	drawingPanel->controlAction(drawingPanel->UPDATE_PANEL);
 }
 
 void DoublePendulumFrame::onLengthBob_2(wxCommandEvent &event)
 {
-	drawingPanel->setSettings(-1, -1, -1, sLengthBob_2->GetValue() / sliderFactor, - 1);
+	dpObject->setSettings(-1, -1, -1, sLengthBob_2->GetValue() / sliderFactor, - 1);
+	drawingPanel->controlAction(drawingPanel->UPDATE_PANEL);
+
 }
 void DoublePendulumFrame::onUpdateValues(wxCommandEvent &event)
 {
