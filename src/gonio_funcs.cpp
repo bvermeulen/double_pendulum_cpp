@@ -4,12 +4,12 @@
 namespace gonio_funcs
 {
 
-float dist(float x1, float y1, float x2, float y2)
+double dist(double x1, double y1, double x2, double y2)
 {
 	return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
 
-float calcTheta(float x, float y, float theta)
+double calcTheta(double x, double y, double theta)
 {
 	if ((y == 0.0) && (x == 0.0))
 		return theta;
@@ -17,10 +17,10 @@ float calcTheta(float x, float y, float theta)
 		return atan2f(x, y);
 }
 
-std::tuple<float, float> calcXY(float length, float theta)
+std::tuple<double, double> calcXY(double length, double theta)
 {
-	float x = length * sin(theta);
-	float y = length * cos(theta);
+	double x = length * sin(theta);
+	double y = length * cos(theta);
 	return {x, y};
 }
 

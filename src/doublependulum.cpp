@@ -3,7 +3,50 @@
 #include <gonio_funcs.h>
 #include <doublependulum.h>
 
-DoublePendulum::DoublePendulum()
+
+HarmOscillator::HarmOscillator(
+    double b1Weight, double r1Length,
+    double b2Weight, double r2Length,
+    double df1, double df2, double g
+)
+{
+    bob1Weight = b1Weight;
+    rod1Length = r1Length;
+    bob2Weight = b2Weight;
+    rod2Length = r2Length;
+    dampingFactor1 = df1;
+    dampingFactor2 = df2;
+    gravitationalConstant = g;    
+}
+
+HarmOscillator::~HarmOscillator() {}
+
+void HarmOscillator::operator() (const state_type &thetaState, state_type &thetaDotState, const double t)
+{
+    double _n1, _n2, _n3, _n4;
+    double dt = thetaState[0] - thetaState[1];
+    double _sin_dt = sin(dt);
+    double _den = (bob1Weight + bob2Weight * _sin_dt * _sin_dt);
+
+    _n1 = bob2Weight * rod1Length * thetaState[2] * thetaState[2] * sin(2*dt);
+    _n2 = 2 * bob2Weight * rod2Length * thetaState[3] * thetaState[3] * _sin_dt;
+    _n3 = 2 * gravitationalConstant * (bob2Weight * cos(thetaState[1]) * _sin_dt + bob1Weight * sin(thetaState[0]));
+    _n4 = 2 * (dampingFactor1 * thetaState[2] - dampingFactor2 * thetaState[3] * cos(dt));
+    thetaDotState[2] = (_n1 + _n2 + _n3 + _n4)/ (-2 * rod1Length * _den);
+            
+    _n1 = bob2Weight * rod2Length * thetaState[3] * thetaState[3] * sin(2*dt);
+    _n2 = 2 * (bob1Weight + bob2Weight) * rod1Length * thetaState[2] * thetaState[2] * _sin_dt;
+    _n3 = 2 * gravitationalConstant * (bob1Weight + bob2Weight) * cos(thetaState[0]) * _sin_dt;
+    _n4 = 2 * (dampingFactor1 * thetaState[2] * cos(dt) - dampingFactor2 * thetaState[3] * (bob1Weight + bob2Weight)/ bob2Weight);
+    thetaDotState[3] = (_n1 + _n2 + _n3 + _n4)/ (2 * rod2Length *_den);
+            
+    thetaDotState[0] = thetaState[2]; 
+    thetaDotState[1] = thetaState[3];
+}
+
+DoublePendulum::DoublePendulum(
+    
+)
 {
 	x_o = 0.0;
 	y_o = 0.0;
@@ -25,7 +68,19 @@ DoublePendulum::DoublePendulum()
 	yBob1 = 0.0;
 	xBob2 = 0.0;
 	yBob2 = 0.0;
+    time = 0.0;
 	std::tie(radiusBob1, radiusBob2) = getRadiusSize();
+
+    ho = new HarmOscillator(
+        massBob1, lengthBob1,
+        massBob2, lengthBob2,
+        dampingFactor, dampingFactor, gravitationalConstant
+    );
+
+    thetaState.emplace_back(theta1);
+    thetaState.emplace_back(theta2);
+    thetaState.emplace_back(theta1Dot);
+    thetaState.emplace_back(theta2Dot);
 }
 
 std::tuple<double, double> DoublePendulum::getRadiusSize()
@@ -64,6 +119,12 @@ void DoublePendulum::setSettings(double _massBob1, double _lengthBob1, double _m
 		lengthBob2 = _lengthBob2;
 	if (_dampingFactor > 0.0)
 		dampingFactor = _dampingFactor;
+    delete ho;
+    ho = new HarmOscillator(
+        massBob1, lengthBob1,
+        massBob2, lengthBob2,
+        dampingFactor, dampingFactor, gravitationalConstant
+    );
 }
 
 void DoublePendulum::updateOrigin(double x, double y)
@@ -116,6 +177,7 @@ using the Euler method
 	theta1 += theta1Dot * deltaTime;
 	theta2Dot += theta2DoubleDot * deltaTime;
 	theta2 += theta2Dot * deltaTime;
+    time += deltaTime;
 }
 
 void DoublePendulum::calcThetaDotRK4(double deltaTime)
@@ -153,6 +215,17 @@ using the Runge-Kutta 4 method
     theta1Dot += den * (A10+2.0*A11+2.0*A12+A13);
     theta2 += den * (V20+2.0*V21+2.0*V22+V23);
     theta2Dot += den * (A20+2.0*A21+2.0*A22+A23);
+    time += deltaTime;
+}
+
+void DoublePendulum::calcThetaDotBoost(double deltaTime)
+{
+    rk4.do_step(std::ref(*ho), thetaState, time, deltaTime);
+    theta1 = thetaState[0];
+    theta2 = thetaState[1];
+    theta1Dot = thetaState[2];
+    theta2Dot = thetaState[3];
+    time += deltaTime;
 }
 
 void DoublePendulum::clearThetaDotDoubleDot()
@@ -161,4 +234,6 @@ void DoublePendulum::clearThetaDotDoubleDot()
 	theta1DoubleDot = 0.0;
 	theta2Dot = 0.0;
 	theta2DoubleDot = 0.0;
+    thetaState[2] = theta1Dot;
+    thetaState[3] = theta2Dot;
 }

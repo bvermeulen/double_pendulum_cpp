@@ -10,7 +10,6 @@
 #define FRAME_RATE 25
 #define FRAME_RATE_MARGIN 10
 
-// catch paint events
 wxDEFINE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
 
 
@@ -24,7 +23,7 @@ DrawingPanel::DrawingPanel(wxFrame *parent) : wxPanel(parent)
 	runEnabled = false;
 	paintEventDone = false;
 	tracerEnabled = false;
-	deltaTime = 0.0001;
+	deltaTime = 0.01; // 0.0001;
 	dpObject = new DoublePendulum();
 
 	Bind(wxEVT_PAINT, paintEvent, this);
@@ -88,7 +87,6 @@ std::tuple<float, float, float, float, float> DrawingPanel::getSettings()
 
 void DrawingPanel::setSettings(float _massBob1, float _lengthBob1, float _massBob2, float _lengthBob2, float _dampingFactor)
 {
-	// if (!paintEventDone) return;
 	dpObject->setSettings(_massBob1, _lengthBob1, _massBob2, _lengthBob2, _dampingFactor);
 	updateObjects();
 }
@@ -115,12 +113,10 @@ void DrawingPanel::mouseMoved(wxMouseEvent &event)
 		if (dragBob1Enabled)
 		{
 			dpObject->updateThetaBob1(pt.x, pt.y);
-			printf("\nmouse moved @ x: %d, y: %d, theta: %.2f", pt.x, pt.y, dpObject->theta1);
 		}
 		else
 		{
 			dpObject->updateThetaBob2(pt.x, pt.y);
-			printf("\nmouse moved @ x: %d, y: %d, theta: %.2f", pt.x, pt.y, dpObject->theta2);
 		}
 		updateObjects();
 	}
@@ -135,7 +131,7 @@ void DrawingPanel::animateDoublePendulum()
 	newTimeCounter_3 = 0;
 	while (runEnabled)
 	{
-		dpObject->calcThetaDotRK4(deltaTime);
+		dpObject->calcThetaDotBoost(deltaTime);
 		_time += deltaTime * 1000;
 		timeCounter++;
 
@@ -169,41 +165,41 @@ void DrawingPanel::controlAction(Control control)
 	switch (control)
 	{
 		case START:
-		runEnabled = true;
-		tracerLine->clear();
-		dpObject->clearThetaDotDoubleDot();
-		animateDoublePendulum();
-		break;
+			runEnabled = true;
+			tracerLine->clear();
+			dpObject->clearThetaDotDoubleDot();
+			animateDoublePendulum();
+			break;
 		case STOP:
-		runEnabled = false;
-		dpObject->clearThetaDotDoubleDot();
-		break;
+			runEnabled = false;
+			dpObject->clearThetaDotDoubleDot();
+			break;
 		case PAUSE:
-		runEnabled = false;
-		break;
+			runEnabled = false;
+			break;
 		case RUN:
-		runEnabled = true;
-		animateDoublePendulum();
-		break;
+			runEnabled = true;
+			animateDoublePendulum();
+			break;
 		case TRACE_ON:
-		tracerEnabled = true;
-		updateObjects();
-		break;
+			tracerEnabled = true;
+			updateObjects();
+			break;
 		case TRACE_OFF:
-		tracerEnabled = false;
-		updateObjects();
-		break;
+			tracerEnabled = false;
+			updateObjects();
+			break;
 		case TRACE_CLEAR:
-		tracerLine->clear();
-		updateObjects();
-		break;
+			tracerLine->clear();
+			updateObjects();
+			break;
 		case SWITCHCOLOR:
-		auto [BrushColor1, Color1] = bob1Circle->getColors();
-		auto [BrushColor2, Color2] = bob2Circle->getColors();
-		bob1Circle->setColors(BrushColor2, Color2);
-		bob2Circle->setColors(BrushColor1, Color1);
-		updateObjects();
-		break;
+			auto [BrushColor1, Color1] = bob1Circle->getColors();
+			auto [BrushColor2, Color2] = bob2Circle->getColors();
+			bob1Circle->setColors(BrushColor2, Color2);
+			bob2Circle->setColors(BrushColor1, Color1);
+			updateObjects();
+			break;
 	}
 }
 
@@ -249,3 +245,4 @@ void DrawingPanel::updateValues()
 	customEvent.SetString(std::to_string(timeCounter));
 	wxPostEvent(this, customEvent);
 }
+

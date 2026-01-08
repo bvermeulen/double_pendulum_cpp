@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/include/**",
                 "d:/cpp/wxwidgets/include/**",
-                "d:/cpp/wxwidgets/lib/gcc_x64_dll/mswud"
+                "d:/cpp/wxwidgets/lib/gcc_x64_dll/mswud",
+                "d:/cpp/boost_1_90_0"
             ],
             "defines": [
                 "_DEBUG",

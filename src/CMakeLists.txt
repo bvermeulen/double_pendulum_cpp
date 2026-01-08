@@ -24,6 +24,7 @@ endif()
 include(UsewxWidgets)
 include_directories(includes
     ../include
+    d:/cpp/boost_1_90_0    
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/debug)

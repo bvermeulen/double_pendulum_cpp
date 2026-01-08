@@ -5,11 +5,11 @@
 namespace gonio_funcs
 {
 
-float dist(float x1, float y1, float x2, float y2); // returns pythagoras distance
+double dist(double x1, double y1, double x2, double y2); // returns pythagoras distance
 
-float calcTheta(float x, float y, float theta); // returns atan(x, y)
+double calcTheta(double x, double y, double theta); // returns atan(x, y)
 
-std::tuple<float, float> calcXY(float length, float theta); // returns tuple {x * sin(t), y * cos(t)}
+std::tuple<double, double> calcXY(double length, double theta); // returns tuple {x * sin(t), y * cos(t)}
 
 }
 #endif // GONIOFUNCS_H
