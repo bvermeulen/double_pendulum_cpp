@@ -1,12 +1,10 @@
 #include <cstdio>
-#include <time.h>
 #include <tuple>
 #include <wx/wx.h>
 #include <gonio_funcs.h>
 #include <doublependulum.h>
 #include <drawing_panel.h>
 #include <objects.h>
-#define CLOCKS_PER_MS (CLOCKS_PER_SEC * 0.001)
 #define FRAME_RATE 25
 #define FRAME_RATE_MARGIN 10
 
@@ -21,13 +19,12 @@ DrawingPanel::DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPan
 	radiusFactor = 2.0;
 	originLineLength = 100;
 	originSize = 10;
-	timeCounter = 0;
 	dragBob1Enabled = false;
 	dragBob2Enabled = false;
 	runEnabled = false;
 	paintEventDone = false;
 	tracerEnabled = false;
-	deltaTime = 0.01; // 0.0001;
+	deltaTime = 0.01; //0.01; // 0.0001;
 
 	Bind(wxEVT_PAINT, paintEvent, this);
 	Bind(wxEVT_MOTION, mouseMoved, this);
@@ -94,9 +91,9 @@ void DrawingPanel::onSize(wxSizeEvent &event)
 	event.Skip();
 }
 
-double DrawingPanel::getTime()
+long DrawingPanel::getTime()
 {
-	return _time;
+	return AnimationTime;
 }
 
 void DrawingPanel::leftClick(wxMouseEvent &event)
@@ -145,39 +142,37 @@ void DrawingPanel::mouseMoved(wxMouseEvent &event)
 
 void DrawingPanel::animateDoublePendulum()
 {
-	_time = clock() / CLOCKS_PER_MS;
-	double _now = _time;
-	newTimeCounter_1 = 0;
-	newTimeCounter_2 = 0;
-	newTimeCounter_3 = 0;
+	newClockTime_1 = 0;
+	newClockTime_2 = 0;
+	newClockTime_3 = 0;
+	AnimationTime += int(deltaTime * 1e6);
 	while (runEnabled)
 	{
-		dpObject.calcThetaDotBoost(deltaTime);
-		_time += deltaTime * 1000;
-		timeCounter++;
-
-		// wait loop for time to keep in pace
-		while (_now < _time)
+		clockTimeMicro = stopWatch.TimeInMicro();
+		if  (clockTimeMicro > AnimationTime)
 		{
-			if (!runEnabled)
-				break;
-			_now = clock() / CLOCKS_PER_MS;
-			wxYield();
+			dpObject.calcThetaDotBoost(deltaTime);
+			AnimationTime += int(deltaTime * 1e6);
 		}
 
+		clockTimeMilli = int(clockTimeMicro.GetValue() * 0.001);
+
 		// blit every FRAME_RATE msecs - 50 times per second for a FRAME_RATE of 25.
-		if (timeCounter % int(FRAME_RATE / (1000 * deltaTime)) == 0 && timeCounter != newTimeCounter_1)
+		if (clockTimeMilli % FRAME_RATE == 0 && clockTimeMilli != newClockTime_1)
 		{
 			updateObjects();
-			newTimeCounter_1 = timeCounter;
+			newClockTime_1 = clockTimeMilli;
 		}
 
 		// every 1 second (1000 ms)
-		if (timeCounter % int(1000 / (1000 * deltaTime)) == 0 && timeCounter != newTimeCounter_2)
+		if (clockTimeMilli % 1000 == 0 && clockTimeMilli != newClockTime_2)
 		{
 			updateValues();
-			newTimeCounter_2 = timeCounter;
+			newClockTime_2 = clockTimeMilli;
 		}
+		if (!runEnabled)
+			break;
+		wxYield();
 	}
 }
 
@@ -189,17 +184,22 @@ void DrawingPanel::controlAction(Control control)
 			runEnabled = true;
 			tracerLine->clear();
 			dpObject.clearThetaDotDoubleDot();
+			stopWatch.Start();
+			AnimationTime = 0.0;
 			animateDoublePendulum();
 			break;
 		case STOP:
 			runEnabled = false;
+			stopWatch.Pause();
 			dpObject.clearThetaDotDoubleDot();
 			break;
 		case PAUSE:
+			stopWatch.Pause();
 			runEnabled = false;
 			break;
 		case RUN:
 			runEnabled = true;
+			stopWatch.Resume();
 			animateDoublePendulum();
 			break;
 		case TRACE_ON:
@@ -233,7 +233,7 @@ void DrawingPanel::drawObjects()
 {
 	// draw fixed items
 	if (tracerEnabled)
-	tracerLine->draw();
+		tracerLine->draw();
 	bob1Circle->draw();
 	bob1Line->draw();
 	originCircle->draw();
@@ -255,10 +255,10 @@ void DrawingPanel::updateObjects()
 	bob1Line->update(x_o, y_o, xBob1, yBob1);
 	bob2Circle->update(xBob2, yBob2, radiusBob2);
 	bob2Line->update(xBob1, yBob1, xBob2, yBob2);
-	if (tracerEnabled && timeCounter % int(50 / (1000 * deltaTime)) == 0 && timeCounter != newTimeCounter_3)
+	if (tracerEnabled && clockTimeMilli % 50 == 0 && clockTimeMilli != newClockTime_3)
 	{
 		tracerLine->update(xBob2, yBob2);
-		newTimeCounter_3 = timeCounter;
+		newClockTime_3 = clockTimeMicro.GetValue();
 		unsigned int size = tracerLine->getSize();
 		if (size % 100 == 0)
 		printf("\ntracer vector size: %u", size);
@@ -271,7 +271,7 @@ void DrawingPanel::updateObjects()
 void DrawingPanel::updateValues()
 {
 	wxCommandEvent customEvent(EVT_UPDATE_VALUES, GetId());
-	customEvent.SetString(std::to_string(timeCounter));
+	customEvent.SetString(std::to_string(clockTimeMilli));
 	wxPostEvent(this, customEvent);
 }
 

@@ -1,6 +1,7 @@
 #ifndef DRAWINGPANEL_H
 #define DRAWINGPANEL_H
 #include <wx/wx.h>
+#include <wx/stopwatch.h>
 #include <wx/event.h>
 #include <tuple>
 
@@ -16,12 +17,14 @@ class DrawingPanel : public wxPanel
 	private:
 		bool dragBob1Enabled, dragBob2Enabled, runEnabled, paintEventDone, tracerEnabled;
 		double x_o, y_o, originLineLength, originSize, modelFactor, radiusFactor; 
-		u_long timeCounter;
-		u_long newTimeCounter_1;
-		u_long newTimeCounter_2;
-		u_long newTimeCounter_3;
+		wxStopWatch stopWatch;
+		wxLongLong clockTimeMicro;
+		long clockTimeMilli;
+		long newClockTime_1;
+		long newClockTime_2;
+		long newClockTime_3;
+		long AnimationTime;
 		double deltaTime;
-		double _time;
 		CircleObject *originCircle, *bob1Circle, *bob2Circle;
 		LineObject *originLine, *bob1Line, *bob2Line;
 		TracerObject *tracerLine;
@@ -57,7 +60,7 @@ public:
 	DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
 	~DrawingPanel();
 	void controlAction(Control control);
-	double getTime();
+	long getTime();
 
 
 };

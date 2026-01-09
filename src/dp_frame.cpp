@@ -227,6 +227,6 @@ void DoublePendulumFrame::onLengthBob_2(wxCommandEvent &event)
 }
 void DoublePendulumFrame::onUpdateValues(wxCommandEvent &event)
 {
-	double _time = drawingPanel->getTime();
-	wxPrintf("\nblit count: %s, updated time: %.4f", event.GetString(), _time);	
+	long _time = drawingPanel->getTime();
+	wxPrintf("\nclock time: %s, animation time: %d", event.GetString(), _time);	
 }
