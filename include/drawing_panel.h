@@ -60,7 +60,7 @@ public:
 	DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
 	~DrawingPanel();
 	void controlAction(Control control);
-	long getTime();
+	float getTime();
 
 
 };

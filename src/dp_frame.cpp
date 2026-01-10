@@ -1,3 +1,4 @@
+#include <format>
 #include <wx/sizer.h>
 #include <wx/wx.h>
 #include <dp_frame.h>
@@ -73,7 +74,7 @@ void DoublePendulumFrame::initUI()
 	settingsBox->Add(label_4, 0, wxLEFT | wxBOTTOM, 5);
 	settingsBox->Add(sLengthBob_2, 0, wxLEFT, 5);
 	settingsBox->AddSpacer(30);
-	timeLabel = new wxTextCtrl(settingsPanel, wxID_ANY, wxT("time: 0.0"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+	timeLabel = new wxStaticText(settingsPanel, wxID_ANY, wxT("time: 0.0"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
 	settingsBox->Add(timeLabel, 0, wxLEFT | wxBOTTOM, 5);
 	settingsBox->AddSpacer(30);
 	settingsPanel->SetSizer(settingsBox);
@@ -227,6 +228,5 @@ void DoublePendulumFrame::onLengthBob_2(wxCommandEvent &event)
 }
 void DoublePendulumFrame::onUpdateValues(wxCommandEvent &event)
 {
-	long _time = drawingPanel->getTime();
-	wxPrintf("\nclock time: %s, animation time: %d", event.GetString(), _time);	
+	timeLabel->SetLabel("time: " + std::format("{:.1f}", drawingPanel->getTime()));
 }

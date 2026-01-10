@@ -19,7 +19,7 @@ private:
 	wxSlider *sMassBob_2;
 	wxSlider *sLengthBob_1;
 	wxSlider *sLengthBob_2;
-	wxTextCtrl *timeLabel;
+	wxStaticText *timeLabel;
 	bool startEnabled, pauseEnabled, traceEnabled;
 	void initUI();
 	void onClose(wxCloseEvent &event);

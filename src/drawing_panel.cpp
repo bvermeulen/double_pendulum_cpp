@@ -91,9 +91,9 @@ void DrawingPanel::onSize(wxSizeEvent &event)
 	event.Skip();
 }
 
-long DrawingPanel::getTime()
+float DrawingPanel::getTime()
 {
-	return AnimationTime;
+	return float(AnimationTime * 1e-6);
 }
 
 void DrawingPanel::leftClick(wxMouseEvent &event)
@@ -164,8 +164,8 @@ void DrawingPanel::animateDoublePendulum()
 			newClockTime_1 = clockTimeMilli;
 		}
 
-		// every 1 second (1000 ms)
-		if (clockTimeMilli % 1000 == 0 && clockTimeMilli != newClockTime_2)
+		// every 0.1 second (100 ms)
+		if (clockTimeMilli % 100 == 0 && clockTimeMilli != newClockTime_2)
 		{
 			updateValues();
 			newClockTime_2 = clockTimeMilli;
