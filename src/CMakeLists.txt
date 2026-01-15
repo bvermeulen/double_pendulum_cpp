@@ -8,9 +8,11 @@ set(sources
     doublependulum.cpp
     dp_app.cpp
     dp_frame.cpp
-    drawing_panel.cpp
+    main_panel.cpp
+    monitor_panels.cpp
     gonio_funcs.cpp
     objects.cpp
+    d:/cpp/wxmathplot/mathplot.cpp
 )
 
 set(wxWidgets_ROOT_DIR "d:/cpp/wxWidgets")
@@ -25,6 +27,7 @@ endif()
 include(UsewxWidgets)
 include_directories(includes
     ../include
+    d:/cpp/wxmathplot/include
     d:/cpp/boost_1_90_0    
 )
 

@@ -1,10 +1,10 @@
 #include <wx/wx.h>
-#include <drawing_panel.h>
+#include <main_panel.h>
 #include <objects.h>
 #include <gonio_funcs.h>
 
 CircleObject::CircleObject(
-	DrawingPanel *_drawingPanelPointer,
+	MainPanel *_drawingPanelPointer,
 	int _x,
 	int _y,
 	float _radius,
@@ -18,12 +18,12 @@ CircleObject::CircleObject(
 	lineWidth = _lineWidth;
 	brushFillColorPointer = _brushFillColorPointer;
 	colorPointer = _colorPointer;
-	drawingPanelPointer = _drawingPanelPointer;
+	mainPanelPointer = _drawingPanelPointer;
 }
 
 void CircleObject::draw()
 {
-	wxClientDC dc(drawingPanelPointer);
+	wxClientDC dc(mainPanelPointer);
 	dc.SetBrush(*brushFillColorPointer);
 	dc.SetPen(wxPen(*colorPointer, 2));
 	dc.DrawCircle(wxPoint(x, y), radius);
@@ -58,7 +58,7 @@ std::tuple<const wxBrush *, const wxColor *> CircleObject::getColors()
 
 LineObject::LineObject
 (
-	DrawingPanel *_drawingPanelPointer,
+	MainPanel *_drawingPanelPointer,
 	int _x1,
 	int _y1,
 	int _x2,
@@ -92,7 +92,7 @@ void LineObject::update(int _x1, int _y1, int _x2, int _y2)
 }
 
 TracerObject::TracerObject(
-	DrawingPanel *_drawingPanelPointer,
+	MainPanel *_drawingPanelPointer,
 	int _lineWidth,
 	const wxColor *_colorPointer)
 {

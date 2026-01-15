@@ -3,7 +3,7 @@
 #include <wx/wx.h>
 #include <tuple>
 
-class DrawingPanel;
+class MainPanel;
 
 class CircleObject
 {
@@ -13,11 +13,11 @@ private:
 	int lineWidth;
 	const wxBrush *brushFillColorPointer;
 	const wxColor *colorPointer;
-	DrawingPanel *drawingPanelPointer;
+	MainPanel *mainPanelPointer;
 
 public:
 	CircleObject(
-		DrawingPanel *_drawingPanelPointer,
+		MainPanel *_drawingPanelPointer,
 		int _x,
 		int _y,
 		float _radius,
@@ -37,11 +37,11 @@ private:
 	int x1, y1, x2, y2;
 	int lineWidth;
 	const wxColor *colorPointer;
-	DrawingPanel *drawingPanelPointer;
+	MainPanel *drawingPanelPointer;
 
 public:
 	LineObject(
-		DrawingPanel *drawingPanelPointer,
+		MainPanel *drawingPanelPointer,
 		int _x1,
 		int _y1,
 		int _x2,
@@ -58,11 +58,11 @@ private:
 	wxVector<wxPoint> tracerVector;
 	int lineWidth;
 	const wxColor *colorPointer;
-	DrawingPanel *drawingPanelPointer;
+	MainPanel *drawingPanelPointer;
 
 public:
 	TracerObject(
-		DrawingPanel *_drawingPanelPointer,
+		MainPanel *_drawingPanelPointer,
 		int _lineWidth,
 		const wxColor *_colorPointer);
 	void draw();

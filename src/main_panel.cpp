@@ -3,7 +3,7 @@
 #include <wx/wx.h>
 #include <gonio_funcs.h>
 #include <doublependulum.h>
-#include <drawing_panel.h>
+#include <main_panel.h>
 #include <objects.h>
 #define FRAME_RATE 25
 #define FRAME_RATE_MARGIN 10
@@ -11,7 +11,7 @@
 wxDEFINE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
 
 
-DrawingPanel::DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPanel(parent), dpObject(dpObjectRef)
+MainPanel::MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPanel(parent), dpObject(dpObjectRef)
 {
 	x_o = 0.0;
 	y_o = 0.0;
@@ -33,7 +33,7 @@ DrawingPanel::DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPan
 	Bind(wxEVT_SIZE, onSize, this);
 }
 
-DrawingPanel::~DrawingPanel()
+MainPanel::~MainPanel()
 {
 	delete originCircle;
 	delete originLine;
@@ -44,7 +44,7 @@ DrawingPanel::~DrawingPanel()
 	delete tracerLine;
 }
 
-std::tuple<double, double, double, double, double, double> DrawingPanel::fitToPanel(
+std::tuple<double, double, double, double, double, double> MainPanel::fitToPanel(
 	double x1, double y1,
 	double x2, double y2,
 	double r1, double r2
@@ -59,7 +59,7 @@ std::tuple<double, double, double, double, double, double> DrawingPanel::fitToPa
 	return std::tuple(x1, y1, x2, y2, r1, r2);
 }
 
-void DrawingPanel::paintEvent(wxPaintEvent &event)
+void MainPanel::paintEvent(wxPaintEvent &event)
 {
 	originCircle = new CircleObject(this, x_o, y_o, originSize, wxYELLOW_BRUSH, 5, wxBLACK);
 	originLine = new LineObject(this, x_o - originLineLength * 0.5, y_o, x_o + originLineLength * 0.5, y_o, 5, wxRED);
@@ -78,7 +78,7 @@ void DrawingPanel::paintEvent(wxPaintEvent &event)
 	paintEventDone = true;
 }
 
-void DrawingPanel::onSize(wxSizeEvent &event)
+void MainPanel::onSize(wxSizeEvent &event)
 {
 	wxSize size = event.GetSize();
 	printf("\nSize of drawingPane: %d, %d", size.x, size.y);
@@ -91,12 +91,12 @@ void DrawingPanel::onSize(wxSizeEvent &event)
 	event.Skip();
 }
 
-float DrawingPanel::getTime()
+float MainPanel::getTime()
 {
 	return float(AnimationTime * 1e-6);
 }
 
-void DrawingPanel::leftClick(wxMouseEvent &event)
+void MainPanel::leftClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	printf("\nleft click @ x: %d, y: %d", pt.x, pt.y);
@@ -111,7 +111,7 @@ void DrawingPanel::leftClick(wxMouseEvent &event)
 	}
 }
 
-void DrawingPanel::rightClick(wxMouseEvent &event)
+void MainPanel::rightClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
 	dragBob1Enabled = false;
@@ -121,7 +121,7 @@ void DrawingPanel::rightClick(wxMouseEvent &event)
 	printf("\nright click @ x: %d, y: %d, runabled: %d", pt.x, pt.y, runEnabled);
 }
 
-void DrawingPanel::mouseMoved(wxMouseEvent &event)
+void MainPanel::mouseMoved(wxMouseEvent &event)
 {
 	if (dragBob1Enabled || dragBob2Enabled)
 	{
@@ -140,7 +140,7 @@ void DrawingPanel::mouseMoved(wxMouseEvent &event)
 	}
 }
 
-void DrawingPanel::animateDoublePendulum()
+void MainPanel::animateDoublePendulum()
 {
 	newClockTime_1 = 0;
 	newClockTime_2 = 0;
@@ -176,7 +176,7 @@ void DrawingPanel::animateDoublePendulum()
 	}
 }
 
-void DrawingPanel::controlAction(Control control)
+void MainPanel::controlAction(Control control)
 {
 	switch (control)
 	{
@@ -229,7 +229,7 @@ void DrawingPanel::controlAction(Control control)
 	}
 }
 
-void DrawingPanel::drawObjects()
+void MainPanel::drawObjects()
 {
 	// draw fixed items
 	if (tracerEnabled)
@@ -242,7 +242,7 @@ void DrawingPanel::drawObjects()
 	bob2Line->draw();
 }
 
-void DrawingPanel::updateObjects()
+void MainPanel::updateObjects()
 {
 	auto [xBob1, yBob1, xBob2, yBob2] = dpObject.getPositions();
 	auto [radiusBob1, radiusBob2] = dpObject.getRadiusSize();
@@ -268,7 +268,7 @@ void DrawingPanel::updateObjects()
 	drawObjects();
 }
 
-void DrawingPanel::updateValues()
+void MainPanel::updateValues()
 {
 	wxCommandEvent customEvent(EVT_UPDATE_VALUES, GetId());
 	customEvent.SetString(std::to_string(clockTimeMilli));

@@ -3,13 +3,15 @@
 #include <wx/wx.h>
 #include <doublependulum.h>
 
-class DrawingPanel;
+class MainPanel;
+class MonitorPanelTheta1;
 
 class DoublePendulumFrame : public wxFrame
 {
 private:
 	DoublePendulum *dpObject;
-	DrawingPanel *drawingPanel;
+	MainPanel *mainPanel;
+	MonitorPanelTheta1 *monitorPanelTheta1;
 	float sliderFactor;
 	wxSize sliderSize;
 	wxButton *startBtn;

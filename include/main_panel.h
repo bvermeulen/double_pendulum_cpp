@@ -1,5 +1,5 @@
-#ifndef DRAWINGPANEL_H
-#define DRAWINGPANEL_H
+#ifndef MAINPANEL_H
+#define MAINPANEL_H
 #include <wx/wx.h>
 #include <wx/stopwatch.h>
 #include <wx/event.h>
@@ -12,7 +12,7 @@ class DoublePendulum;
 
 wxDECLARE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
 
-class DrawingPanel : public wxPanel
+class MainPanel : public wxPanel
 {
 	private:
 		bool dragBob1Enabled, dragBob2Enabled, runEnabled, paintEventDone, tracerEnabled;
@@ -57,12 +57,10 @@ public:
 		SWITCHCOLOR,
 		UPDATE_PANEL
 	};
-	DrawingPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
-	~DrawingPanel();
+	MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
+	~MainPanel();
 	void controlAction(Control control);
 	float getTime();
-
-
 };
 
-#endif // DRAWINGPANE_H
+#endif // MAINPANEL_H
