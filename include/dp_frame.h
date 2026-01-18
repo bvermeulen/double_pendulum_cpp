@@ -21,6 +21,8 @@ private:
 	wxSlider *sMassBob_2;
 	wxSlider *sLengthBob_1;
 	wxSlider *sLengthBob_2;
+	wxTextCtrl *theta1ValueBox;
+	wxTextCtrl *theta2ValueBox;
 	wxStaticText *timeLabel;
 	bool startEnabled, pauseEnabled, traceEnabled;
 	void initUI();

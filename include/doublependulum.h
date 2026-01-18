@@ -4,8 +4,15 @@
 #include <vector>
 #include <boost/numeric/odeint.hpp>
 
-
 typedef std::vector<double> state_type;
+
+struct Status {
+	double theta1;
+	double theta2;
+	double time;
+	double potentialEnergy;
+	double kineticEnergy;
+};
 
 class HarmOscillator
 {
@@ -38,6 +45,7 @@ class DoublePendulum
 		double theta2Dot, theta2DoubleDot, lengthBob2, radiusBob2, massBob2;
 		double xBob1, yBob1, xBob2, yBob2;
 		void calcThetaDoubleDot(double t1, double t2);
+		void updateStatus();
 		HarmOscillator *ho;
 		state_type thetaState;
         boost::numeric::odeint::runge_kutta4<state_type> rk4;        
@@ -56,6 +64,7 @@ class DoublePendulum
 		void calcThetaDotRK4(double deltaTime);
 		void calcThetaDotBoost(double deltaTime);	
 		void clearThetaDotDoubleDot();
+		Status status;
 };
 
 #endif // DOUBLEPENDULUM_H

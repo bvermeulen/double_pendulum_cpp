@@ -43,24 +43,24 @@ class MainPanel : public wxPanel
 		void paintEvent(wxPaintEvent &event);
 		void onSize(wxSizeEvent &event);
 		void updateValues();
-
-public:
-	enum Control
-	{
-		START,
-		STOP,
-		PAUSE,
-		RUN,
-		TRACE_ON,
-		TRACE_OFF,
-		TRACE_CLEAR,
-		SWITCHCOLOR,
-		UPDATE_PANEL
-	};
-	MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
-	~MainPanel();
-	void controlAction(Control control);
-	float getTime();
+		
+		public:
+		enum Control
+		{
+			START,
+			STOP,
+			PAUSE,
+			RUN,
+			TRACE_ON,
+			TRACE_OFF,
+			TRACE_CLEAR,
+			SWITCHCOLOR,
+			UPDATE_PANEL
+		};
+		MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
+		~MainPanel();
+		void controlAction(Control control);
+		float getTime();
 };
 
 #endif // MAINPANEL_H

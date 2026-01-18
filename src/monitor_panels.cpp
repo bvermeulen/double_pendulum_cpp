@@ -43,9 +43,9 @@ MonitorPanelTheta1::~MonitorPanelTheta1()
     delete timeTheta1Plot;
 }
 
-void MonitorPanelTheta1::updateMonitor(float time)
+void MonitorPanelTheta1::updateMonitor(const Status &status)
 {
-    float ycoord = 1500.0 * sin(time * 3.0);
+    float ycoord = 1500.0 * sin(status.time * 3.0);
     vectorTheta1.push_back(ycoord);
     std::rotate(vectorTheta1.rbegin(), vectorTheta1.rbegin() + 1, vectorTheta1.rend());
     vectorTheta1.pop_back();

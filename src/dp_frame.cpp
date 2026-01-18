@@ -1,13 +1,15 @@
 #include <format>
 #include <wx/sizer.h>
 #include <wx/wx.h>
+#include <config.h>
 #include <dp_frame.h>
 #include <main_panel.h>
 #include <monitor_panels.h>
 #include <doublependulum.h>
+#include <gonio_funcs.h>
 
 
-DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("Double Pendulum"), wxPoint(0, 0), wxSize(1000, 800))
+DoublePendulumFrame::DoublePendulumFrame() : wxFrame((wxFrame *)NULL, -1, wxT("Double Pendulum"), wxPoint(0, 0), wxSize(APP_WIDTH, APP_HEIGHT))
 {
 	sliderFactor = 10.0;
 	sliderSize = wxSize(160, 30);
@@ -48,8 +50,8 @@ void DoublePendulumFrame::initUI()
 	
 	// add items in mainBox
 	wxPanel *settingsPanel = new wxPanel(this);
-	settingsPanel->SetMinSize(wxSize(170, -1));
-	settingsPanel->SetMaxSize(wxSize(200, -1));
+	settingsPanel->SetMinSize(wxSize(SETTINGS_MIN_SIZE, -1));
+	settingsPanel->SetMaxSize(wxSize(SETTINGS_MAX_SIZE, -1));
 	wxBoxSizer *settingsBox = new wxBoxSizer(wxVERTICAL);
 	wxStaticText *label_1 = new wxStaticText(settingsPanel, wxID_ANY, wxT("Mass Bob 1 (*0.1)"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
 	sMassBob_1 = new wxSlider(settingsPanel, wxID_ANY, massBob1, 0, 100, wxDefaultPosition, sliderSize, wxSL_LABELS);
@@ -75,20 +77,36 @@ void DoublePendulumFrame::initUI()
 	settingsBox->Add(label_4, 0, wxLEFT | wxBOTTOM, 5);
 	settingsBox->Add(sLengthBob_2, 0, wxLEFT, 5);
 	settingsBox->AddSpacer(30);
+
+	wxBoxSizer *theta1Box = new wxBoxSizer(wxHORIZONTAL);
+	wxStaticText *theta1Label = new wxStaticText(settingsPanel, wxID_ANY, wxT("theta1: "), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+	theta1ValueBox = new wxTextCtrl( settingsPanel, wxID_ANY, wxT(" "), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+	theta1Box->Add(theta1Label, 0, wxLEFT, 5);	
+	theta1Box->Add(theta1ValueBox, 0, wxLEFT, 5);
+	settingsBox->Add(theta1Box);
+	settingsBox->AddSpacer(5);
+	wxBoxSizer *theta2Box = new wxBoxSizer(wxHORIZONTAL);
+	wxStaticText *theta2Label = new wxStaticText(settingsPanel, wxID_ANY, wxT("theta2: "), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+	theta2ValueBox = new wxTextCtrl(settingsPanel, wxID_ANY, wxT(" "), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+	theta2Box->Add(theta2Label, 0, wxLEFT, 5);	
+	theta2Box->Add(theta2ValueBox, 0, wxLEFT, 5);
+	settingsBox->Add(theta2Box);
+	settingsBox->AddSpacer(10);
+	
 	timeLabel = new wxStaticText(settingsPanel, wxID_ANY, wxT("time: 0.0"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
 	settingsBox->Add(timeLabel, 0, wxLEFT | wxBOTTOM, 5);
-	settingsBox->AddSpacer(30);
+	settingsBox->AddSpacer(10);
 	settingsPanel->SetSizer(settingsBox);
 	
 	mainBox->Add(settingsPanel, true, wxTOP | wxLEFT, 10);
 	mainBox->AddSpacer(10);
-	mainPanel->SetMinSize(wxSize(600, 400));
+	mainPanel->SetMinSize(wxSize(MAINPANEL_MIN_SIZE_WIDTH, MAINPANEL_MIN_SIZE_HEIGHT));
 	mainBox->Add(mainPanel, true, wxEXPAND | wxTOP | wxRIGHT, 10);
 	
 	// add items in graphBox
 	monitorPanelTheta1 = new MonitorPanelTheta1(this, 25);
-	monitorPanelTheta1->SetMinSize(wxSize(400, 200));
-	graphBox->Add(monitorPanelTheta1, true, wxEXPAND | wxTOP , 10);
+	monitorPanelTheta1->SetMinSize(wxSize(MONITOR_MIN_SIZE_WIDTH, MONITOR_MIN_SIZEHEIGHT));
+	graphBox->Add(monitorPanelTheta1, true, wxLEFT | wxTOP , 10);
 	graphBox->AddSpacer(10);
 	
 	// add items in controlBox
@@ -224,10 +242,18 @@ void DoublePendulumFrame::onLengthBob_2(wxCommandEvent &event)
 {
 	dpObject->setSettings(-1, -1, -1, sLengthBob_2->GetValue() / sliderFactor, - 1);
 	mainPanel->controlAction(mainPanel->UPDATE_PANEL);
-
 }
+
 void DoublePendulumFrame::onUpdateValues(wxCommandEvent &event)
 {
-	timeLabel->SetLabel("time: " + std::format("{:.1f}", mainPanel->getTime()));
-	monitorPanelTheta1->updateMonitor(mainPanel->getTime());
+	float angle;
+	angle = gonio_funcs::radToDegree(dpObject->status.theta1);
+	theta1ValueBox->SetLabel(std::format("{:7.2f}", angle));
+	angle = gonio_funcs::radToDegree(dpObject->status.theta2);
+	theta2ValueBox->SetLabel(std::format("{:7.2f}", angle));
+	timeLabel->SetLabel("time: " + std::format("{:.1f}", dpObject->status.time));
+	if (startEnabled && !pauseEnabled)
+	{
+		monitorPanelTheta1->updateMonitor(dpObject->status);
+	}
 }

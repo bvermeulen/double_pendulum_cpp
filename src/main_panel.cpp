@@ -1,15 +1,13 @@
 #include <cstdio>
 #include <tuple>
 #include <wx/wx.h>
+#include <config.h>
 #include <gonio_funcs.h>
 #include <doublependulum.h>
 #include <main_panel.h>
 #include <objects.h>
-#define FRAME_RATE 25
-#define FRAME_RATE_MARGIN 10
 
 wxDEFINE_EVENT(EVT_UPDATE_VALUES, wxCommandEvent);
-
 
 MainPanel::MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPanel(parent), dpObject(dpObjectRef)
 {
@@ -24,13 +22,15 @@ MainPanel::MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPanel(par
 	runEnabled = false;
 	paintEventDone = false;
 	tracerEnabled = false;
-	deltaTime = 0.01; //0.01; // 0.0001;
+	deltaTime = DELTA_TIME;
 
 	Bind(wxEVT_PAINT, paintEvent, this);
 	Bind(wxEVT_MOTION, mouseMoved, this);
 	Bind(wxEVT_LEFT_DOWN, leftClick, this);
 	Bind(wxEVT_RIGHT_DOWN, rightClick, this);
 	Bind(wxEVT_SIZE, onSize, this);
+
+	updateValues();
 }
 
 MainPanel::~MainPanel()
@@ -137,6 +137,7 @@ void MainPanel::mouseMoved(wxMouseEvent &event)
 			dpObject.updateThetaBob2(x, y);
 		}
 		updateObjects();
+		updateValues();
 	}
 }
 
@@ -165,7 +166,7 @@ void MainPanel::animateDoublePendulum()
 		}
 
 		// every 0.1 second (100 ms)
-		if (clockTimeMilli % 100 == 0 && clockTimeMilli != newClockTime_2)
+		if (clockTimeMilli % FRAME_RATE_MONITOR == 0 && clockTimeMilli != newClockTime_2)
 		{
 			updateValues();
 			newClockTime_2 = clockTimeMilli;
@@ -255,7 +256,7 @@ void MainPanel::updateObjects()
 	bob1Line->update(x_o, y_o, xBob1, yBob1);
 	bob2Circle->update(xBob2, yBob2, radiusBob2);
 	bob2Line->update(xBob1, yBob1, xBob2, yBob2);
-	if (tracerEnabled && clockTimeMilli % 50 == 0 && clockTimeMilli != newClockTime_3)
+	if (tracerEnabled && clockTimeMilli % TRACER_UPDATE == 0 && clockTimeMilli != newClockTime_3)
 	{
 		tracerLine->update(xBob2, yBob2);
 		newClockTime_3 = clockTimeMicro.GetValue();
@@ -271,7 +272,6 @@ void MainPanel::updateObjects()
 void MainPanel::updateValues()
 {
 	wxCommandEvent customEvent(EVT_UPDATE_VALUES, GetId());
-	customEvent.SetString(std::to_string(clockTimeMilli));
 	wxPostEvent(this, customEvent);
 }
 

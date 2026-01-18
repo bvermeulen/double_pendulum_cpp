@@ -2,6 +2,7 @@
 #define MONITORPANELS_H
 #include <wx/wx.h>
 #include <mathplot.h>
+#include <doublependulum.h>
 
 
 class MonitorPanelTheta1 : public wxPanel
@@ -16,7 +17,7 @@ class MonitorPanelTheta1 : public wxPanel
     public:
         MonitorPanelTheta1(wxFrame *parent, int monitorFrameRate);
         ~MonitorPanelTheta1();
-        void updateMonitor(float time);
+        void updateMonitor(const Status &status);
 };
 
 #endif // MONITORPANELS_H
