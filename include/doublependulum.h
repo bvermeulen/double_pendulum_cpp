@@ -49,7 +49,6 @@ class DoublePendulum
 		HarmOscillator *ho;
 		state_type thetaState;
         boost::numeric::odeint::runge_kutta4<state_type> rk4;        
-
 	
 	public:
 		DoublePendulum();
@@ -58,13 +57,15 @@ class DoublePendulum
 		std::tuple<double, double, double, double> getPositions();
 		std::tuple<double, double, double, double, double> getSettings();
 		void setSettings(double _massBob1, double _lengthBob1, double _massBob2, double _lengthBob2, double _dampingFactor);
+		void setTheta1(double theta);
+		void setTheta2(double theta);
 		void updateThetaBob1(double x, double y);
 		void updateThetaBob2(double x, double y);
 		void calcThetaDotEuler(double deltaTime);
 		void calcThetaDotRK4(double deltaTime);
 		void calcThetaDotBoost(double deltaTime);	
 		void clearThetaDotDoubleDot();
-		Status status;
+		Status getMonitorValues();
 };
 
 #endif // DOUBLEPENDULUM_H

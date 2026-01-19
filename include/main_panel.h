@@ -42,7 +42,7 @@ class MainPanel : public wxPanel
 		void rightClick(wxMouseEvent &event);
 		void paintEvent(wxPaintEvent &event);
 		void onSize(wxSizeEvent &event);
-		void updateValues();
+		void updateMonitorValues();
 		
 		public:
 		enum Control
@@ -60,7 +60,9 @@ class MainPanel : public wxPanel
 		MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
 		~MainPanel();
 		void controlAction(Control control);
-		float getTime();
-};
+		const wxColor* colorBob1();
+		const wxColor* colorBob2();
+
+	};
 
 #endif // MAINPANEL_H

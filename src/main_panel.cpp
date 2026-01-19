@@ -30,7 +30,7 @@ MainPanel::MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef) : wxPanel(par
 	Bind(wxEVT_RIGHT_DOWN, rightClick, this);
 	Bind(wxEVT_SIZE, onSize, this);
 
-	updateValues();
+	updateMonitorValues();
 }
 
 MainPanel::~MainPanel()
@@ -91,11 +91,6 @@ void MainPanel::onSize(wxSizeEvent &event)
 	event.Skip();
 }
 
-float MainPanel::getTime()
-{
-	return float(AnimationTime * 1e-6);
-}
-
 void MainPanel::leftClick(wxMouseEvent &event)
 {
 	wxPoint pt = event.GetPosition();
@@ -137,7 +132,7 @@ void MainPanel::mouseMoved(wxMouseEvent &event)
 			dpObject.updateThetaBob2(x, y);
 		}
 		updateObjects();
-		updateValues();
+		updateMonitorValues();
 	}
 }
 
@@ -168,7 +163,7 @@ void MainPanel::animateDoublePendulum()
 		// every 0.1 second (100 ms)
 		if (clockTimeMilli % FRAME_RATE_MONITOR == 0 && clockTimeMilli != newClockTime_2)
 		{
-			updateValues();
+			updateMonitorValues();
 			newClockTime_2 = clockTimeMilli;
 		}
 		if (!runEnabled)
@@ -269,9 +264,21 @@ void MainPanel::updateObjects()
 	drawObjects();
 }
 
-void MainPanel::updateValues()
+void MainPanel::updateMonitorValues()
 {
 	wxCommandEvent customEvent(EVT_UPDATE_VALUES, GetId());
 	wxPostEvent(this, customEvent);
 }
 
+
+const wxColor* MainPanel::colorBob1()
+{
+	auto [brush, color] = bob1Circle->getColors();
+	return color;
+}
+
+const wxColor* MainPanel::colorBob2()
+{
+	auto [brush, color] = bob2Circle->getColors();
+	return color;
+}

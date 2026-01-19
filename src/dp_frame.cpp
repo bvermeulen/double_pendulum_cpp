@@ -80,14 +80,14 @@ void DoublePendulumFrame::initUI()
 
 	wxBoxSizer *theta1Box = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticText *theta1Label = new wxStaticText(settingsPanel, wxID_ANY, wxT("theta1: "), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
-	theta1ValueBox = new wxTextCtrl( settingsPanel, wxID_ANY, wxT(" "), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+	theta1ValueBox = new wxTextCtrl( settingsPanel, wxID_ANY, wxT(" "), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 	theta1Box->Add(theta1Label, 0, wxLEFT, 5);	
 	theta1Box->Add(theta1ValueBox, 0, wxLEFT, 5);
 	settingsBox->Add(theta1Box);
 	settingsBox->AddSpacer(5);
 	wxBoxSizer *theta2Box = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticText *theta2Label = new wxStaticText(settingsPanel, wxID_ANY, wxT("theta2: "), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
-	theta2ValueBox = new wxTextCtrl(settingsPanel, wxID_ANY, wxT(" "), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+	theta2ValueBox = new wxTextCtrl(settingsPanel, wxID_ANY, wxT(" "), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 	theta2Box->Add(theta2Label, 0, wxLEFT, 5);	
 	theta2Box->Add(theta2ValueBox, 0, wxLEFT, 5);
 	settingsBox->Add(theta2Box);
@@ -104,9 +104,9 @@ void DoublePendulumFrame::initUI()
 	mainBox->Add(mainPanel, true, wxEXPAND | wxTOP | wxRIGHT, 10);
 	
 	// add items in graphBox
-	monitorPanelTheta1 = new MonitorPanelTheta1(this, 25);
-	monitorPanelTheta1->SetMinSize(wxSize(MONITOR_MIN_SIZE_WIDTH, MONITOR_MIN_SIZEHEIGHT));
-	graphBox->Add(monitorPanelTheta1, true, wxLEFT | wxTOP , 10);
+	monitorPanelThetas = new MonitorPanelThetas(this, 25);
+	monitorPanelThetas->SetMinSize(wxSize(MONITOR_MIN_SIZE_WIDTH, MONITOR_MIN_SIZE_HEIGHT));
+	graphBox->Add(monitorPanelThetas, true, wxLEFT | wxTOP , 10);
 	graphBox->AddSpacer(10);
 	
 	// add items in controlBox
@@ -141,6 +141,8 @@ void DoublePendulumFrame::initUI()
 	sMassBob_2->Bind(wxEVT_SLIDER, onMassBob_2, this);
 	sLengthBob_1->Bind(wxEVT_SLIDER, onLengthBob_1, this);
 	sLengthBob_2->Bind(wxEVT_SLIDER, onLengthBob_2, this);
+	theta1ValueBox->Bind(wxEVT_TEXT_ENTER, onTheta1EnterValue, this);
+	theta2ValueBox->Bind(wxEVT_TEXT_ENTER, onTheta2EnterValue, this);
 	Bind(EVT_UPDATE_VALUES, onUpdateValues, this);
 }
 
@@ -162,11 +164,37 @@ void DoublePendulumFrame::onClose(wxCloseEvent &event)
 	Destroy();
 }
 
+void DoublePendulumFrame::onTheta1EnterValue(wxCommandEvent &event)
+{
+	double angle;
+	wxString wxValue = theta1ValueBox->GetValue();
+	bool success = wxValue.ToDouble(&angle);
+	if (success)
+	{
+		dpObject->setTheta1(gonio_funcs::degreeToRad(angle));
+		mainPanel->controlAction(mainPanel->UPDATE_PANEL);
+	}
+}
+
+void DoublePendulumFrame::onTheta2EnterValue(wxCommandEvent &event)
+{
+	double angle;
+	wxString wxValue = theta2ValueBox->GetValue();
+	bool success = wxValue.ToDouble(&angle);
+	if (success)
+	{
+		dpObject->setTheta2(gonio_funcs::degreeToRad(angle));
+		mainPanel->controlAction(mainPanel->UPDATE_PANEL);
+	}
+}
+
 void DoublePendulumFrame::onStart(wxCommandEvent &event)
 {
 	startEnabled = !startEnabled;
 	if (startEnabled)
 	{
+		theta1ValueBox->SetEditable(false);
+		theta2ValueBox->SetEditable(false);
 		startBtn->SetLabelText(wxT("Stop"));
 		pauseEnabled = false;
 		pauseBtn->SetLabelText(wxT("Pause"));
@@ -174,6 +202,8 @@ void DoublePendulumFrame::onStart(wxCommandEvent &event)
 	}
 	else
 	{
+		theta1ValueBox->SetEditable(true);
+		theta2ValueBox->SetEditable(true);
 		startBtn->SetLabelText(wxT("Start"));
 		mainPanel->controlAction(mainPanel->STOP);
 	}
@@ -229,7 +259,6 @@ void DoublePendulumFrame::onMassBob_2(wxCommandEvent &event)
 {
 	dpObject->setSettings(-1, -1, sMassBob_2->GetValue() / sliderFactor, -1, -1);
 	mainPanel->controlAction(mainPanel->UPDATE_PANEL);
-
 }
 
 void DoublePendulumFrame::onLengthBob_1(wxCommandEvent &event)
@@ -246,14 +275,17 @@ void DoublePendulumFrame::onLengthBob_2(wxCommandEvent &event)
 
 void DoublePendulumFrame::onUpdateValues(wxCommandEvent &event)
 {
-	float angle;
-	angle = gonio_funcs::radToDegree(dpObject->status.theta1);
-	theta1ValueBox->SetLabel(std::format("{:7.2f}", angle));
-	angle = gonio_funcs::radToDegree(dpObject->status.theta2);
-	theta2ValueBox->SetLabel(std::format("{:7.2f}", angle));
-	timeLabel->SetLabel("time: " + std::format("{:.1f}", dpObject->status.time));
+	Status status = dpObject->getMonitorValues();
+	float angle1, angle2;
+	angle1 = gonio_funcs::radToDegree(status.theta1);
+	theta1ValueBox->SetLabel(std::format("{:7.2f}", angle1));
+	angle2 = gonio_funcs::radToDegree(status.theta2);
+	theta2ValueBox->SetLabel(std::format("{:7.2f}", angle2));
+	timeLabel->SetLabel("time: " + std::format("{:.1f}", status.time));
 	if (startEnabled && !pauseEnabled)
 	{
-		monitorPanelTheta1->updateMonitor(dpObject->status);
+		const wxColor* bob1Color = mainPanel->colorBob1();
+		const wxColor* bob2Color = mainPanel->colorBob2();
+		monitorPanelThetas->updateMonitor(angle1, bob1Color, angle2, bob2Color);
 	}
 }

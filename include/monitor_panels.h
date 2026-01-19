@@ -4,20 +4,21 @@
 #include <mathplot.h>
 #include <doublependulum.h>
 
-
-class MonitorPanelTheta1 : public wxPanel
+class MonitorPanelThetas : public wxPanel
 {
 	private:
         int monitorFrameRate;
         mpFXYVector *timeTheta1Plot;
+        mpFXYVector *timeTheta2Plot;
         std::vector<double> vectorTime;
         std::vector<double> vectorTheta1;
-        mpWindow *mpPlotTheta1;
+        std::vector<double> vectorTheta2;
+        mpWindow *mpPlotLeft;
     
     public:
-        MonitorPanelTheta1(wxFrame *parent, int monitorFrameRate);
-        ~MonitorPanelTheta1();
-        void updateMonitor(const Status &status);
+        MonitorPanelThetas(wxFrame *parent, int monitorFrameRate);
+        ~MonitorPanelThetas();
+        void updateMonitor(float theta1, const wxColor* color1, float theta2, const wxColor* color2);
 };
 
 #endif // MONITORPANELS_H

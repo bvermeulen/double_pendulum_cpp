@@ -31,7 +31,7 @@ namespace gonio_funcs
 		{
 			angle -= 2 * M_PI;
 		}
-		if (angle < M_PI)
+		if (angle < -M_PI)
 		{
 			angle += 2 * M_PI;
 		}

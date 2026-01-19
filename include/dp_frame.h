@@ -4,14 +4,14 @@
 #include <doublependulum.h>
 
 class MainPanel;
-class MonitorPanelTheta1;
+class MonitorPanelThetas;
 
 class DoublePendulumFrame : public wxFrame
 {
 private:
 	DoublePendulum *dpObject;
 	MainPanel *mainPanel;
-	MonitorPanelTheta1 *monitorPanelTheta1;
+	MonitorPanelThetas *monitorPanelThetas;
 	float sliderFactor;
 	wxSize sliderSize;
 	wxButton *startBtn;
@@ -38,6 +38,8 @@ private:
 	void onLengthBob_1(wxCommandEvent &event);
 	void onLengthBob_2(wxCommandEvent &event);
 	void onUpdateValues(wxCommandEvent &event);
+	void onTheta1EnterValue(wxCommandEvent &event);
+	void onTheta2EnterValue(wxCommandEvent &event);
 
 public:
 	DoublePendulumFrame();

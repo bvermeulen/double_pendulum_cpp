@@ -75,7 +75,6 @@ DoublePendulum::DoublePendulum()
     thetaState.emplace_back(theta2);
     thetaState.emplace_back(theta1Dot);
     thetaState.emplace_back(theta2Dot);
-    updateStatus();
 }
 
 DoublePendulum::~DoublePendulum()
@@ -127,16 +126,24 @@ void DoublePendulum::setSettings(double _massBob1, double _lengthBob1, double _m
     );
 }
 
+void DoublePendulum::setTheta1(double angle)
+{
+    theta1 = angle;
+}
+
+void DoublePendulum::setTheta2(double angle)
+{
+    theta2 = angle;
+}
+
 void DoublePendulum::updateThetaBob1(double x, double y)
 {
 	theta1 = gonio_funcs::calcTheta(x, y, 0.0);
-    updateStatus();
 }
 
 void DoublePendulum::updateThetaBob2(double x, double y)
 {
 	theta2 = gonio_funcs::calcTheta(x - xBob1, y - yBob1, 0.0);
-    updateStatus();
 }
 
 void DoublePendulum::calcThetaDoubleDot(double t1, double t2)
@@ -174,7 +181,6 @@ using the Euler method
 	theta2Dot += theta2DoubleDot * deltaTime;
 	theta2 += theta2Dot * deltaTime;
     time += deltaTime;
-    updateStatus();
 }
 
 void DoublePendulum::calcThetaDotRK4(double deltaTime)
@@ -213,8 +219,6 @@ using the Runge-Kutta 4 method
     theta2 += den * (V20+2.0*V21+2.0*V22+V23);
     theta2Dot += den * (A20+2.0*A21+2.0*A22+A23);
     time += deltaTime;
-    updateStatus();
-
 }
 
 void DoublePendulum::calcThetaDotBoost(double deltaTime)
@@ -225,7 +229,6 @@ void DoublePendulum::calcThetaDotBoost(double deltaTime)
     theta1Dot = thetaState[2];
     theta2Dot = thetaState[3];
     time += deltaTime;
-    updateStatus();
 }
 
 void DoublePendulum::clearThetaDotDoubleDot()
@@ -238,14 +241,15 @@ void DoublePendulum::clearThetaDotDoubleDot()
     thetaState[1] = theta2;
     thetaState[2] = theta1Dot;
     thetaState[3] = theta2Dot;
-    updateStatus();
 }
 
-void DoublePendulum::updateStatus()
+Status DoublePendulum::getMonitorValues()
 {
+    Status status;
     status.theta1 = theta1;
     status.theta2 = theta2;
     status.time = time;
     status.kineticEnergy = 0.0;
     status.potentialEnergy = 0.0;
+    return status;
 }

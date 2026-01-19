@@ -1,15 +1,23 @@
+#include <config.h>
 #include <monitor_panels.h>
 
-MonitorPanelTheta1::MonitorPanelTheta1(wxFrame *parent, int monitorFrameRate) : wxPanel(parent)
+MonitorPanelThetas::MonitorPanelThetas(wxFrame *parent, int monitorFrameRate) : wxPanel(parent)
 {
     timeTheta1Plot = new mpFXYVector();
     timeTheta1Plot->SetContinuity(true);
-    wxPen xyPen(*wxRED, 2, wxPENSTYLE_SOLID);
-    timeTheta1Plot->SetPen(xyPen);
+    wxPen xyPen1(*wxRED, 2, wxPENSTYLE_SOLID);
+    timeTheta1Plot->SetPen(xyPen1);
     timeTheta1Plot->SetDrawOutsideMargins(false);
 
-    mpPlotTheta1 = new mpWindow(this, -1, wxPoint(0, 0), wxSize(400, 200));
-    mpPlotTheta1->SetMargins(20, 10, 40, 10);
+    timeTheta2Plot = new mpFXYVector();
+    timeTheta2Plot->SetContinuity(true);
+    wxPen xyPen2(*wxBLUE, 2, wxPENSTYLE_SOLID);
+    timeTheta2Plot->SetPen(xyPen2);
+    timeTheta2Plot->SetDrawOutsideMargins(false);
+
+
+    mpPlotLeft = new mpWindow(this, -1, wxPoint(0, 0), wxSize(MONITOR_MIN_SIZE_WIDTH, MONITOR_MIN_SIZE_HEIGHT));
+    mpPlotLeft->SetMargins(20, 10, 40, 10);
 
     wxFont graphFont(6, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     mpScaleX *xaxis = new mpScaleX(wxT(""), mpALIGN_BOTTOM, true);
@@ -17,41 +25,53 @@ MonitorPanelTheta1::MonitorPanelTheta1(wxFrame *parent, int monitorFrameRate) : 
     xaxis->SetFont(graphFont);
     xaxis->SetDrawOutsideMargins(false);
     xaxis->SetAuto(false);
-    xaxis->SetMinScale(-40.0);
+    xaxis->SetMinScale(-MONITOR_DURATION);
     xaxis->SetMaxScale(0.0);
     yaxis->SetFont(graphFont);
     yaxis->SetDrawOutsideMargins(false);
     yaxis->SetAuto(false);
-    yaxis->SetMinScale(-2100.0);
-    yaxis->SetMaxScale(+2100.0);
+    yaxis->SetMinScale(MONITOR_MIN_Y);
+    yaxis->SetMaxScale(MONITOR_MAX_Y);
 
-    mpPlotTheta1->AddLayer(xaxis);
-    mpPlotTheta1->AddLayer(yaxis);
-    mpPlotTheta1->AddLayer(timeTheta1Plot);
-    mpPlotTheta1->EnableDoubleBuffer(true);
-    mpPlotTheta1->SetMPScrollbars(false);
-    mpPlotTheta1->Fit();
+    mpPlotLeft->AddLayer(xaxis);
+    mpPlotLeft->AddLayer(yaxis);
+    mpPlotLeft->AddLayer(timeTheta1Plot);
+    mpPlotLeft->AddLayer(timeTheta2Plot);
+    mpPlotLeft->EnableDoubleBuffer(true);
+    mpPlotLeft->SetMPScrollbars(false);
+    mpPlotLeft->Fit();
 
     int samples = int(1000 / monitorFrameRate);
     for (int i=0; i < samples; i++)
-        vectorTime.push_back(-40.0 * float(i) / float(samples));
+        vectorTime.push_back(-MONITOR_DURATION * float(i) / float(samples));
     vectorTheta1.resize(samples, 0.0);
+    vectorTheta2.resize(samples, 0.0);
 }
 
-MonitorPanelTheta1::~MonitorPanelTheta1()
+MonitorPanelThetas::~MonitorPanelThetas()
 {
     delete timeTheta1Plot;
 }
 
-void MonitorPanelTheta1::updateMonitor(const Status &status)
+void MonitorPanelThetas::updateMonitor(float theta1, const wxColor* color1, float theta2, const wxColor* color2)
 {
-    float ycoord = 1500.0 * sin(status.time * 3.0);
-    vectorTheta1.push_back(ycoord);
+    vectorTheta1.push_back(theta1);
     std::rotate(vectorTheta1.rbegin(), vectorTheta1.rbegin() + 1, vectorTheta1.rend());
     vectorTheta1.pop_back();
     
+
+    wxPen xyPen1(*color1, 2, wxPENSTYLE_SOLID);
+    timeTheta1Plot->SetPen(xyPen1);
     timeTheta1Plot->SetData(vectorTime, vectorTheta1);
-    mpPlotTheta1->UpdateAll();
+
+    vectorTheta2.push_back(theta2);
+    std::rotate(vectorTheta2.rbegin(), vectorTheta2.rbegin() + 1, vectorTheta2.rend());
+    vectorTheta2.pop_back();
+    
+    wxPen xyPen2(*color2, 2, wxPENSTYLE_SOLID);
+    timeTheta2Plot->SetPen(xyPen2);
+    timeTheta2Plot->SetData(vectorTime, vectorTheta2);
+    mpPlotLeft->UpdateAll();
 }
 
 
