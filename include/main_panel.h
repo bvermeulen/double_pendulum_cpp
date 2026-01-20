@@ -60,9 +60,7 @@ class MainPanel : public wxPanel
 		MainPanel(wxFrame *parent, DoublePendulum &dpObjectRef);
 		~MainPanel();
 		void controlAction(Control control);
-		const wxColor* colorBob1();
-		const wxColor* colorBob2();
-
+		std::tuple<wxColor, wxColor> getBobColorsTuple();
 	};
 
 #endif // MAINPANEL_H

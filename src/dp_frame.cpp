@@ -284,8 +284,9 @@ void DoublePendulumFrame::onUpdateValues(wxCommandEvent &event)
 	timeLabel->SetLabel("time: " + std::format("{:.1f}", status.time));
 	if (startEnabled && !pauseEnabled)
 	{
-		const wxColor* bob1Color = mainPanel->colorBob1();
-		const wxColor* bob2Color = mainPanel->colorBob2();
-		monitorPanelThetas->updateMonitor(angle1, bob1Color, angle2, bob2Color);
+		auto [bob1Color, bob2Color] = mainPanel->getBobColorsTuple();
+		wxColor color1 = bob1Color;
+		wxColor color2 = bob2Color;
+		monitorPanelThetas->updateMonitor(angle1, color1, angle2, color2);
 	}
 }

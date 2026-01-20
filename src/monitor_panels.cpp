@@ -51,16 +51,17 @@ MonitorPanelThetas::MonitorPanelThetas(wxFrame *parent, int monitorFrameRate) : 
 MonitorPanelThetas::~MonitorPanelThetas()
 {
     delete timeTheta1Plot;
+    delete timeTheta2Plot;
+    delete mpPlotLeft;
 }
 
-void MonitorPanelThetas::updateMonitor(float theta1, const wxColor* color1, float theta2, const wxColor* color2)
+void MonitorPanelThetas::updateMonitor(float theta1, wxColor& color1, float theta2, wxColor& color2)
 {
     vectorTheta1.push_back(theta1);
     std::rotate(vectorTheta1.rbegin(), vectorTheta1.rbegin() + 1, vectorTheta1.rend());
     vectorTheta1.pop_back();
     
-
-    wxPen xyPen1(*color1, 2, wxPENSTYLE_SOLID);
+    wxPen xyPen1(color1, 2, wxPENSTYLE_SOLID);
     timeTheta1Plot->SetPen(xyPen1);
     timeTheta1Plot->SetData(vectorTime, vectorTheta1);
 
@@ -68,7 +69,7 @@ void MonitorPanelThetas::updateMonitor(float theta1, const wxColor* color1, floa
     std::rotate(vectorTheta2.rbegin(), vectorTheta2.rbegin() + 1, vectorTheta2.rend());
     vectorTheta2.pop_back();
     
-    wxPen xyPen2(*color2, 2, wxPENSTYLE_SOLID);
+    wxPen xyPen2(color2, 2, wxPENSTYLE_SOLID);
     timeTheta2Plot->SetPen(xyPen2);
     timeTheta2Plot->SetData(vectorTime, vectorTheta2);
     mpPlotLeft->UpdateAll();

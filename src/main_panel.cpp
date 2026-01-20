@@ -270,15 +270,10 @@ void MainPanel::updateMonitorValues()
 	wxPostEvent(this, customEvent);
 }
 
-
-const wxColor* MainPanel::colorBob1()
+std::tuple<wxColor, wxColor> MainPanel::getBobColorsTuple()
 {
-	auto [brush, color] = bob1Circle->getColors();
-	return color;
-}
-
-const wxColor* MainPanel::colorBob2()
-{
-	auto [brush, color] = bob2Circle->getColors();
-	return color;
+	const wxColor* bob1Color = std::get<1>(bob1Circle->getColors());
+	const wxColor* bob2Color = std::get<1>(bob2Circle->getColors());
+	auto bobColorsTuple = std::make_tuple(wxColor(*bob1Color), wxColor(*bob2Color));
+	return bobColorsTuple;
 }

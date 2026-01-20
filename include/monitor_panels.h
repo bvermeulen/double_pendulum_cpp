@@ -18,7 +18,7 @@ class MonitorPanelThetas : public wxPanel
     public:
         MonitorPanelThetas(wxFrame *parent, int monitorFrameRate);
         ~MonitorPanelThetas();
-        void updateMonitor(float theta1, const wxColor* color1, float theta2, const wxColor* color2);
+        void updateMonitor(float theta1, wxColor &color1, float theta2, wxColor &color2);
 };
 
 #endif // MONITORPANELS_H
