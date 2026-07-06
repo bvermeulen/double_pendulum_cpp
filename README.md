@@ -18,8 +18,7 @@ Make sure the following wxWidget `dll` files are in the same folder as the execu
 wxbase32ud_gcc_x64_custom.dll
 wxmsw32ud_core_gcc_x64_custom.dll
 ```
-
-
+These can be found in `...\wxWidgets\lib\gcc_x64_dll` folder.
 
 
 
