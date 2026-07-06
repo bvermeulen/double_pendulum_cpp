@@ -11,5 +11,15 @@ Tutorials:
 https://zetcode.com/gui/wxwidgets/layoutmanagement/
 http://www.daltonfilho.com/articles/swingwx/ (from 2008)
 
+Important:
+Make sure the following wxWidget `dll` files are in the same folder as the executable:
+
+```
+wxbase32ud_gcc_x64_custom.dll
+wxmsw32ud_core_gcc_x64_custom.dll
+```
+
+
+
 
 
